@@ -2,224 +2,341 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>بلدية سهل حوران الذكية</title>
+
+  <!-- إعدادات تطبيق الهاتف (PWA) -->
+  <meta name="theme-color" content="#047857" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="سهل حوران" />
   
-  <!-- Tailwind CSS & Leaflet Maps -->
+  <!-- المكتبات والأيقونات -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Google Fonts: Cairo -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
   <style>
-    body { font-family: 'Cairo', sans-serif; }
-    #map { height: 320px; width: 100%; border-radius: 0.75rem; z-index: 10; }
+    body { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+    #map { height: 290px; width: 100%; border-radius: 1rem; z-index: 10; }
     .font-large { font-size: 115% !important; }
-    .high-contrast { filter: contrast(125%); }
+    .pulse-dot {
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.9; }
+      50% { transform: scale(1.15); opacity: 0.5; }
+      100% { transform: scale(0.95); opacity: 0.9; }
+    }
   </style>
 </head>
-<body class="bg-stone-50 text-stone-900 pb-16 transition-all duration-200">
+<body class="bg-stone-100 text-stone-900 pb-20 select-none">
 
-  <!-- الشريط العلوي والتنقل -->
-  <header class="bg-white border-b border-stone-200 sticky top-0 z-50">
-    <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center gap-2">
-        <div class="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+  <!-- شريط تنبيه التثبيت على شاشة الهاتف -->
+  <div id="install-banner" class="hidden bg-stone-900 text-white px-4 py-2.5 flex items-center justify-between text-xs font-semibold sticky top-0 z-50 shadow-md">
+    <span>📲 ثبّت التطبيق على شاشة هاتفك الرئيسية</span>
+    <button onclick="installApp()" class="bg-emerald-600 px-3 py-1 rounded-lg text-white font-bold hover:bg-emerald-700">تثبيت</button>
+  </div>
+
+  <!-- الترويسة العلوية -->
+  <header class="bg-white border-b border-stone-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-bold text-xl shadow-sm">
           ح
         </div>
         <div>
-          <h1 class="font-bold text-base md:text-lg leading-tight">بلدية سهل حوران الذكية</h1>
-          <p class="text-xs text-stone-500">الطرة • الشجرة • الذنيبة • عمراوة</p>
+          <h1 class="font-extrabold text-base leading-tight text-stone-900">بلدية سهل حوران الذكية</h1>
+          <p class="text-[11px] text-stone-500 font-semibold">بوابة الخدمات والبلاغات الميدانية</p>
         </div>
       </div>
       
-      <!-- تبديل الواجهات وإعدادات العرض -->
-      <div class="flex items-center gap-2">
-        <button onclick="toggleAccessibility()" title="تكبير الخط والوضوح" class="p-2 text-xs font-semibold bg-stone-100 rounded-lg hover:bg-stone-200">
-          👁️ خيارات القراءة
+      <div class="flex items-center gap-1.5">
+        <button onclick="toggleAccessibility()" title="وضوح القراءة" class="p-2 text-xs font-bold bg-stone-100 rounded-lg hover:bg-stone-200">
+          👁️
         </button>
         <button onclick="switchView('citizen')" id="btn-citizen" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-700 text-white">
           المواطن
         </button>
         <button onclick="switchView('admin')" id="btn-admin" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-stone-100 text-stone-700">
-          لوحة الإدارة
+          الإدارة
         </button>
       </div>
     </div>
   </header>
 
-  <main class="max-w-4xl mx-auto px-4 mt-6">
+  <main class="max-w-md mx-auto px-4 mt-4">
 
     <!-- ================== واجهة المواطن ================== -->
-    <div id="view-citizen" class="space-y-6">
-      <!-- بطاقة الترحيب والإرشادات -->
-      <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
-        <h2 class="text-lg font-bold text-stone-900 mb-1">تقديم بلاغ خدمي مباشر</h2>
-        <p class="text-xs text-stone-600 leading-relaxed">
-          نظام مستوحى من التجربة اليابانية للاستجابة السريعة لملاحظات الطرق، الإنارة، والنظافة العامة لخدمة أهالي سهل حوران.
+    <div id="view-citizen" class="space-y-4">
+      
+      <!-- رسالة ترحيبية رسمية -->
+      <div class="bg-gradient-to-r from-emerald-800 to-teal-800 text-white p-4 rounded-2xl shadow-sm">
+        <h2 class="text-base font-bold mb-1">خدمة أهالي سهل حوران</h2>
+        <p class="text-xs text-emerald-100 leading-relaxed">
+          منصة بلدية موحدة لمتابعة ومعالجة البلاغات في الطرة، الشجرة، الذنيبة، وعمراوة مع التحديد التلقائي الدقيق لموقع العطل.
         </p>
       </div>
 
       <!-- نموذج تسجيل البلاغ -->
-      <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-5">
-        <!-- 1. نوع المشكلة -->
+      <div class="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+        
+        <!-- 1. التصنيف -->
         <div>
-          <label class="block text-sm font-bold text-stone-800 mb-2">1. تصنيف البلاغ</label>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="category-selector">
-            <button onclick="setCategory(this, 'تراكم النفايات')" class="cat-btn p-3 text-xs font-semibold border rounded-xl border-stone-200 hover:border-emerald-600 text-right">🗑️ تراكم النفايات</button>
-            <button onclick="setCategory(this, 'حفر وتلف الطرق')" class="cat-btn p-3 text-xs font-semibold border rounded-xl border-stone-200 hover:border-emerald-600 text-right">🚧 حفر وتلف الطرق</button>
-            <button onclick="setCategory(this, 'أعطال إنارة الشوارع')" class="cat-btn p-3 text-xs font-semibold border rounded-xl border-stone-200 hover:border-emerald-600 text-right">💡 أعطال الإنارة</button>
-            <button onclick="setCategory(this, 'مناهل وتصريف مياه')" class="cat-btn p-3 text-xs font-semibold border rounded-xl border-stone-200 hover:border-emerald-600 text-right">🌧️ تصريف المياه</button>
-            <button onclick="setCategory(this, 'تعديات وأرصفة')" class="cat-btn p-3 text-xs font-semibold border rounded-xl border-stone-200 hover:border-emerald-600 text-right">⚠️ تعديات وأرصفة</button>
-            <button onclick="setCategory(this, 'أخرى')" class="cat-btn p-3 text-xs font-semibold border rounded-xl border-stone-200 hover:border-emerald-600 text-right">📦 ملاحظات أخرى</button>
+          <label class="block text-xs font-bold text-stone-700 mb-2">1. نوع الملاحظة أو العطل</label>
+          <div class="grid grid-cols-2 gap-2" id="category-selector">
+            <button onclick="setCategory(this, 'تراكم النفايات')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-emerald-600 bg-emerald-50 text-emerald-950 text-right">🗑️ تراكم النفايات</button>
+            <button onclick="setCategory(this, 'حفر وهبوطات الطرق')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-stone-200 text-right">🚧 هبوطات الطرق</button>
+            <button onclick="setCategory(this, 'أعطال إنارة الشوارع')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-stone-200 text-right">💡 أعطال الإنارة</button>
+            <button onclick="setCategory(this, 'مناهل وتصريف المياه')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-stone-200 text-right">🌧️ تصريف المياه</button>
+            <button onclick="setCategory(this, 'الأرصفة والمرافق')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-stone-200 text-right">🌳 الأرصفة والمرافق</button>
+            <button onclick="setCategory(this, 'ملاحظات أخرى')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-stone-200 text-right">📦 ملاحظات أخرى</button>
           </div>
         </div>
 
-        <!-- 2. المنطقة والموقع -->
+        <!-- 2. تحديد الموقع التلقائي عالي الدقة -->
         <div>
-          <label class="block text-sm font-bold text-stone-800 mb-2">2. البلدة والنطاق الجغرافي</label>
-          <div class="grid grid-cols-4 gap-2 mb-3">
-            <button onclick="focusTown('الطرة', 32.6120, 35.9910)" class="town-btn py-2 text-xs font-bold border rounded-lg bg-stone-100 hover:bg-stone-200">الطرة</button>
-            <button onclick="focusTown('الشجرة', 32.6515, 35.9420)" class="town-btn py-2 text-xs font-bold border rounded-lg bg-stone-100 hover:bg-stone-200">الشجرة</button>
-            <button onclick="focusTown('الذنيبة', 32.6780, 35.9210)" class="town-btn py-2 text-xs font-bold border rounded-lg bg-stone-100 hover:bg-stone-200">الذنيبة</button>
-            <button onclick="focusTown('عمراوة', 32.6840, 35.8850)" class="town-btn py-2 text-xs font-bold border rounded-lg bg-stone-100 hover:bg-stone-200">عمراوة</button>
+          <div class="flex justify-between items-center mb-2">
+            <label class="text-xs font-bold text-stone-700">2. موقع البلاغ (تحديد تلقائي دقيق)</label>
+            <button onclick="locateUser(true)" class="flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-200">
+              <span class="inline-block w-2 h-2 rounded-full bg-emerald-600 pulse-dot"></span>
+              🎯 تحديث موقعي الآن
+            </button>
           </div>
-          
-          <div class="mb-2">
-            <span class="text-xs text-stone-500">انقر على الخريطة لتحديد مكان العطل بدقة (المجال محصور بسهل حوران):</span>
+
+          <!-- اختيار البلدة (يتم اختياره آلياً حسب موقع المواطن) -->
+          <div class="grid grid-cols-4 gap-1.5 mb-2.5">
+            <button id="town-الطرة" onclick="manualFocusTown('الطرة', 32.6120, 35.9910)" class="town-btn py-2 text-xs font-bold border rounded-xl bg-stone-100 text-stone-700">الطرة</button>
+            <button id="town-الشجرة" onclick="manualFocusTown('الشجرة', 32.6515, 35.9420)" class="town-btn py-2 text-xs font-bold border rounded-xl bg-stone-100 text-stone-700">الشجرة</button>
+            <button id="town-الذنيبة" onclick="manualFocusTown('الذنيبة', 32.6780, 35.9210)" class="town-btn py-2 text-xs font-bold border rounded-xl bg-stone-100 text-stone-700">الذنيبة</button>
+            <button id="town-عمراوة" onclick="manualFocusTown('عمراوة', 32.6840, 35.8850)" class="town-btn py-2 text-xs font-bold border rounded-xl bg-stone-100 text-stone-700">عمراوة</button>
           </div>
+
           <div id="map"></div>
-          <p id="geo-info" class="text-xs font-mono text-emerald-800 mt-2 bg-emerald-50 p-2 rounded-lg text-center font-bold">
-            الموقع المحدد: اضغط على الخريطة
-          </p>
+
+          <!-- شريط حالة الـ GPS -->
+          <div id="gps-status-card" class="mt-2 p-2 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+            <p id="geo-info" class="text-xs font-bold text-emerald-900">
+              📡 جاري قراءة موقعك الفعلي عبر الأقمار الصناعية بدقة...
+            </p>
+            <p id="geo-accuracy" class="text-[10px] text-emerald-700 font-mono mt-0.5">
+              (يرجى الموافقة على إذن الموقع عند طلبه)
+            </p>
+          </div>
         </div>
 
         <!-- 3. الصورة والوصف -->
         <div>
-          <label class="block text-sm font-bold text-stone-800 mb-2">3. إرفاق صورة العطل (اختياري)</label>
-          <input type="file" accept="image/*" id="report-img" class="block w-full text-xs text-stone-500 file:mr-0 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 mb-3" />
+          <label class="block text-xs font-bold text-stone-700 mb-1.5">3. تصوير المشكلة (اختياري)</label>
+          <input type="file" accept="image/*" capture="environment" id="report-img" class="block w-full text-xs text-stone-500 file:mr-0 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 mb-3" />
 
-          <label class="block text-sm font-bold text-stone-800 mb-1">وصف مختصر</label>
-          <textarea id="report-desc" rows="2" placeholder="اكتب تفاصيل إضافية عن المشكلة أو أقرب معلم..." class="w-full text-sm p-3 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700 outline-none"></textarea>
+          <label class="block text-xs font-bold text-stone-700 mb-1">وصف مختصر أو علامة مميزة</label>
+          <textarea id="report-desc" rows="2" placeholder="مثال: بالقرب من دوار الشجرة، مقابل المركز الصحي..." class="w-full text-xs p-3 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700 outline-none"></textarea>
         </div>
 
-        <button onclick="submitReport()" class="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shadow-sm transition">
-          إرسال البلاغ والحصول على رقم المتابعة
+        <button onclick="submitReport()" class="w-full py-3.5 bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold text-sm rounded-xl shadow-md transition">
+          إرسال البلاغ والحصول على رقم متابعة
         </button>
       </div>
 
-      <!-- بطاقة نجاح الإرسال وتتبع البلاغ -->
-      <div id="success-box" class="hidden bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center space-y-3">
-        <div class="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center mx-auto text-2xl font-bold">✓</div>
-        <h3 class="text-base font-bold text-emerald-950">تم استلام بلاغك بنجاح</h3>
-        <p class="text-xs text-stone-600">احتفظ برقم التتبع التالي للاستعلام عن مسار المعالجة:</p>
-        <div class="bg-white py-2 px-4 rounded-xl border border-emerald-300 inline-block font-mono font-bold text-lg text-emerald-800" id="ticket-number">
+      <!-- بطاقة التأكيد برقم المتابعة -->
+      <div id="success-box" class="hidden bg-emerald-50 border border-emerald-300 p-5 rounded-2xl text-center space-y-2.5">
+        <div class="w-10 h-10 bg-emerald-600 text-white rounded-full flex items-center justify-center mx-auto text-xl font-bold">✓</div>
+        <h3 class="text-sm font-bold text-emerald-950">تم تسجيل بلاغك لدى بلدية سهل حوران</h3>
+        <p class="text-xs text-stone-600">احتفظ برقم التتبع لمراجعة حالة الإنجاز:</p>
+        <div class="bg-white py-1.5 px-4 rounded-xl border border-emerald-300 inline-block font-mono font-bold text-lg text-emerald-800" id="ticket-number">
           SH-26-0000
         </div>
       </div>
     </div>
 
     <!-- ================== واجهة موظف البلدية / الإدارة ================== -->
-    <div id="view-admin" class="hidden space-y-6">
-      <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex justify-between items-center">
+    <div id="view-admin" class="hidden space-y-4">
+      <div class="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex justify-between items-center">
         <div>
-          <h2 class="text-base font-bold text-stone-900">سجل البلاغات وإدارة العمليات الميدانية</h2>
-          <p class="text-xs text-stone-500">فرز وتحديث حالات الإصلاح لفرق سهل حوران</p>
+          <h2 class="text-sm font-bold text-stone-900">غرفة عمليات البلدية</h2>
+          <p class="text-[11px] text-stone-500">إدارة ومتابعة معالجة البلاغات</p>
         </div>
         <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full" id="reports-count">
           0 بلاغات
         </span>
       </div>
 
-      <!-- قائمة البلاغات الواردة -->
-      <div id="admin-reports-list" class="space-y-3">
-        <!-- تملأ برمجياً -->
+      <div id="admin-reports-list" class="space-y-2.5">
+        <!-- تملأ بالبلاغات -->
       </div>
     </div>
 
   </main>
 
   <script>
-    // إحداثيات سهل حوران المعتمدة (BBOX)
-    const SAHL_BBOX = { minLat: 32.5800, maxLat: 32.7200, minLng: 35.8500, maxLng: 36.0500 };
+    // إحداثيات ومراكز بلدات سهل حوران
+    const TOWNS = [
+      { name: 'الطرة', lat: 32.6120, lng: 35.9910 },
+      { name: 'الشجرة', lat: 32.6515, lng: 35.9420 },
+      { name: 'الذنيبة', lat: 32.6780, lng: 35.9210 },
+      { name: 'عمراوة', lat: 32.6840, lng: 35.8850 }
+    ];
+
+    const SAHL_BBOX = { minLat: 32.5600, maxLat: 32.7300, minLng: 35.8400, maxLng: 36.0600 };
     let currentCategory = 'تراكم النفايات';
     let currentTown = 'الطرة';
     let selectedLat = 32.6120;
     let selectedLng = 35.9910;
-    let map, marker;
-    let isLargeFont = false;
+    let map, marker, accuracyCircle;
+    let deferredPrompt;
 
-    // ذاكرة البلاغات المحلية
     let reports = [
       {
-        id: 'SH-26-8912',
+        id: 'SH-26-4102',
         category: 'أعطال إنارة الشوارع',
         town: 'الشجرة',
-        desc: 'عمود إنارة معطل بالشارع المؤدي لعمراوة',
+        desc: 'صيانة وحدة إنارة على المدخل الرئيسي',
         lat: 32.6515,
         lng: 35.9420,
         status: 'قيد المعالجة',
-        time: 'منذ ساعتين'
+        time: 'منذ ساعة'
       }
     ];
 
-    // تهيئة الخريطة
     window.onload = function() {
-      map = L.map('map').setView([32.6400, 35.9500], 12);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap سهل حوران'
-      }).addTo(map);
+      // 1. إنشاء الخريطة أولاً على مركز سهل حوران
+      map = L.map('map', { zoomControl: false }).setView([32.6450, 35.9500], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      marker = L.marker([selectedLat, selectedLng], { draggable: true }).addTo(map);
 
-      marker = L.marker([selectedLat, selectedLng]).addTo(map);
-
-      map.on('click', function(e) {
-        const { lat, lng } = e.latlng;
-        // التحقق من أن النقر داخل منطقة سهل حوران
-        if (lat >= SAHL_BBOX.minLat && lat <= SAHL_BBOX.maxLat && lng >= SAHL_BBOX.minLng && lng <= SAHL_BBOX.maxLng) {
-          selectedLat = lat;
-          selectedLng = lng;
-          marker.setLatLng(e.latlng);
-          document.getElementById('geo-info').innerText = `الموقع المثبت: (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
-        } else {
-          alert('يرجى تحديد الموقع داخل نطاق بلدية سهل حوران (الطرة، الشجرة، الذنيبة، عمراوة)');
-        }
+      // السماح بسحب الدبوس لتعديل طفيف إن رغب المواطن
+      marker.on('dragend', function(e) {
+        const pos = e.target.getLatLng();
+        updateLocationData(pos.lat, pos.lng, 'تم تعديل الموقع يدوياً');
       });
 
+      map.on('click', function(e) {
+        updateLocationData(e.latlng.lat, e.latlng.lng, 'تم تحديد النقطة عبر اللمس');
+      });
+
+      // 2. تشغيل الـ GPS التلقائي عالي الدقة فور فتح الصفحة
+      locateUser(false);
       renderAdminReports();
     };
 
-    function focusTown(name, lat, lng) {
-      currentTown = name;
+    // دالة تحديد الموقع التلقائي فائق الدقة (GPS)
+    function locateUser(isManualClick) {
+      const infoEl = document.getElementById('geo-info');
+      const accEl = document.getElementById('geo-accuracy');
+
+      if (!navigator.geolocation) {
+        infoEl.innerText = 'خدمة تحديد المواقع غير مدعومة على متصفحك';
+        return;
+      }
+
+      infoEl.innerText = '📡 جاري الاتصال بالأقمار الصناعية (GPS)...';
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const accuracy = Math.round(pos.coords.accuracy);
+
+          // التحقق من النطاق الجغرافي لسهل حوران
+          if (lat >= SAHL_BBOX.minLat && lat <= SAHL_BBOX.maxLat && lng >= SAHL_BBOX.minLng && lng <= SAHL_BBOX.maxLng) {
+            updateLocationData(lat, lng, `تم تحديد موقعك بدقة (نسبة الخطأ ±${accuracy} متر)`);
+            map.setView([lat, lng], 16); // تكبير عالي للشوارع والأحياء
+
+            // رسم دائرة دقة الموقع
+            if (accuracyCircle) map.removeLayer(accuracyCircle);
+            accuracyCircle = L.circle([lat, lng], {
+              radius: accuracy,
+              color: '#059669',
+              fillColor: '#10b981',
+              fillOpacity: 0.15
+            }).addTo(map);
+          } else {
+            // في حال كان المستخدم خارج سهل حوران أثناء التجربة
+            updateLocationData(lat, lng, `موقعك الحالي خارج حدود سهل حوران (دقة ±${accuracy}م)`);
+            map.setView([lat, lng], 15);
+          }
+        },
+        (err) => {
+          if (isManualClick) {
+            alert('تعذر جلب موقعك، يرجى تفعيل الـ GPS من إعدادات الهاتف وإعطاء الإذن للمتصفح.');
+          }
+          infoEl.innerText = 'يرجى تفعيل الموقع (GPS) لتثبيت مكانك تلقائياً';
+          accEl.innerText = 'يمكنك أيضاً النقر المباشر على الخريطة لتحديد العطل';
+        },
+        {
+          enableHighAccuracy: true, // تفعيل أعلى دقة هاتف
+          timeout: 12000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    // تحديث البيانات وتحديد أقرب بلدة تلقائياً
+    function updateLocationData(lat, lng, note) {
       selectedLat = lat;
       selectedLng = lng;
-      map.setView([lat, lng], 14);
       marker.setLatLng([lat, lng]);
-      document.getElementById('geo-info').innerText = `البلدة: ${name} (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+
+      // حساب أقرب بلدة للمواطن آلياً
+      const nearestTown = getNearestTown(lat, lng);
+      currentTown = nearestTown;
+      highlightTownButton(nearestTown);
+
+      document.getElementById('geo-info').innerText = `📍 تم التعرف تلقائياً: ${nearestTown} (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+      document.getElementById('geo-accuracy').innerText = note;
+    }
+
+    // حساب المسافة واكتشاف البلدة التابعة
+    function getNearestTown(lat, lng) {
+      let closest = TOWNS[0];
+      let minDistance = Infinity;
+
+      TOWNS.forEach(t => {
+        const d = Math.hypot(t.lat - lat, t.lng - lng);
+        if (d < minDistance) {
+          minDistance = d;
+          closest = t;
+        }
+      });
+      return closest.name;
+    }
+
+    function highlightTownButton(name) {
+      document.querySelectorAll('.town-btn').forEach(b => {
+        b.className = (b.innerText === name) 
+          ? 'town-btn py-2 text-xs font-bold border rounded-xl bg-stone-900 text-white shadow-sm' 
+          : 'town-btn py-2 text-xs font-bold border rounded-xl bg-stone-100 text-stone-700';
+      });
+    }
+
+    function manualFocusTown(name, lat, lng) {
+      updateLocationData(lat, lng, 'تم الاختيار اليدوي');
+      map.setView([lat, lng], 15);
     }
 
     function setCategory(btn, cat) {
       currentCategory = cat;
-      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('bg-emerald-50', 'border-emerald-600', 'text-emerald-900'));
-      btn.classList.add('bg-emerald-50', 'border-emerald-600', 'text-emerald-900');
+      document.querySelectorAll('.cat-btn').forEach(b => {
+        b.className = 'cat-btn p-2.5 text-xs font-bold border rounded-xl border-stone-200 text-right';
+      });
+      btn.className = 'cat-btn p-2.5 text-xs font-bold border rounded-xl border-emerald-600 bg-emerald-50 text-emerald-950 text-right';
     }
 
     function submitReport() {
-      const desc = document.getElementById('report-desc').value || 'لا يوجد وصف إضافي';
+      const desc = document.getElementById('report-desc').value || 'لا توجد ملاحظات إضافية';
       const code = 'SH-' + Math.floor(1000 + Math.random() * 9000);
 
-      const newReport = {
+      reports.unshift({
         id: code,
         category: currentCategory,
         town: currentTown,
         desc: desc,
-        lat: selectedLat,
-        lng: selectedLng,
         status: 'تم الاستلام',
         time: 'الآن'
-      };
+      });
 
-      reports.unshift(newReport);
       document.getElementById('ticket-number').innerText = code;
       document.getElementById('success-box').classList.remove('hidden');
       document.getElementById('report-desc').value = '';
@@ -234,25 +351,17 @@
 
       reports.forEach((rep, idx) => {
         const card = document.createElement('div');
-        card.className = 'bg-white p-4 rounded-xl border border-stone-200 shadow-sm flex flex-col md:flex-row justify-between gap-3 items-start md:items-center';
-        
-        let statusColor = 'bg-amber-50 text-amber-800 border-amber-200';
-        if (rep.status === 'قيد المعالجة') statusColor = 'bg-blue-50 text-blue-800 border-blue-200';
-        if (rep.status === 'تمت المعالجة') statusColor = 'bg-emerald-50 text-emerald-800 border-emerald-200';
-
+        card.className = 'bg-white p-3.5 rounded-xl border border-stone-200 shadow-sm space-y-2';
         card.innerHTML = `
-          <div>
-            <div class="flex items-center gap-2 mb-1">
-              <span class="font-mono font-bold text-xs bg-stone-100 px-2 py-0.5 rounded text-stone-700">${rep.id}</span>
-              <span class="text-xs font-bold text-stone-900">${rep.category} • ${rep.town}</span>
-              <span class="text-[10px] text-stone-400">(${rep.time})</span>
-            </div>
-            <p class="text-xs text-stone-600">${rep.desc}</p>
+          <div class="flex justify-between items-center">
+            <span class="font-mono font-bold text-xs bg-stone-100 px-2 py-0.5 rounded text-stone-800">${rep.id}</span>
+            <span class="text-[11px] text-stone-400 font-semibold">${rep.time}</span>
           </div>
-          
-          <div class="flex items-center gap-2 w-full md:w-auto justify-between">
-            <span class="text-xs font-bold px-2.5 py-1 rounded-full border ${statusColor}">${rep.status}</span>
-            <select onchange="updateStatus(${idx}, this.value)" class="text-xs bg-stone-50 border border-stone-300 rounded-lg p-1.5 font-semibold outline-none">
+          <div class="text-xs font-bold text-stone-900">${rep.category} • منطقة ${rep.town}</div>
+          <p class="text-xs text-stone-600">${rep.desc}</p>
+          <div class="pt-1 flex justify-between items-center">
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">${rep.status}</span>
+            <select onchange="reports[${idx}].status = this.value; renderAdminReports();" class="text-xs bg-stone-50 border border-stone-300 rounded-lg p-1 font-semibold">
               <option value="تم الاستلام" ${rep.status==='تم الاستلام'?'selected':''}>تم الاستلام</option>
               <option value="قيد المراجعة" ${rep.status==='قيد المراجعة'?'selected':''}>قيد المراجعة</option>
               <option value="قيد المعالجة" ${rep.status==='قيد المعالجة'?'selected':''}>قيد المعالجة</option>
@@ -262,11 +371,6 @@
         `;
         container.appendChild(card);
       });
-    }
-
-    function updateStatus(index, newStatus) {
-      reports[index].status = newStatus;
-      renderAdminReports();
     }
 
     function switchView(view) {
@@ -284,10 +388,22 @@
     }
 
     function toggleAccessibility() {
-      isLargeFont = !isLargeFont;
-      document.body.classList.toggle('font-large', isLargeFont);
-      document.body.classList.toggle('high-contrast', isLargeFont);
+      document.body.classList.toggle('font-large');
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('install-banner').classList.remove('hidden');
+    });
+
+    function installApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt = null;
+        document.getElementById('install-banner').classList.add('hidden');
+      }
     }
   </script>
 </body>
-  </html>
+</html>
