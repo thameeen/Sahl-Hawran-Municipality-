@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   
-  <title>بلدية سهل حوران | البوابة الذكية</title>
+  <title>بلدية سهل حوران | المنظومة الذكية الموحدة</title>
 
   <!-- PWA Settings -->
   <link rel="manifest" href="manifest.json" />
@@ -14,7 +14,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="سهل حوران" />
   
-  <!-- المكتبات السريعة عبر سيرفرات Cloudflare في الأردن -->
+  <!-- المكتبات السريعة عبر Cloudflare CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -30,7 +30,6 @@
     
     #map { 
       height: 250px !important; 
-      min-height: 250px !important;
       width: 100% !important; 
       border-radius: 1rem; 
       z-index: 10; 
@@ -121,7 +120,7 @@
         </div>
         <h2 class="text-sm font-extrabold text-white mt-1">تسجيل بلاغ خدمي فوري</h2>
         <p class="text-[11px] text-slate-300 mt-0.5">
-          يشترط: الصورة الحية بالكاميرا • الموقع الفعلي بالـ GPS • وصف المشكلة
+          يشترط: الكاميرا الحية • GPS الميداني • مطابقة وصف العطل
         </p>
       </div>
 
@@ -150,7 +149,6 @@
             </button>
           </div>
 
-          <!-- شارات توضح البلدة المكتشفة تلقائياً فقط -->
           <div class="grid grid-cols-4 gap-1.5 mb-2 pointer-events-none">
             <div id="badge-الطرة" class="town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-100 text-slate-400">الطرة</div>
             <div id="badge-الشجرة" class="town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-100 text-slate-400">الشجرة</div>
@@ -160,7 +158,6 @@
 
           <div id="map"></div>
 
-          <!-- صندوق حالة التحقق الجغرافي -->
           <div id="geo-status-box" class="mt-2.5 p-3 rounded-xl border text-xs flex items-center justify-between transition-all bg-slate-50 border-slate-200">
             <div>
               <p id="geo-info" class="font-extrabold text-slate-800">📡 اضغط "تثبيت موقعي الآن" للتحقق من تواجدك</p>
@@ -170,30 +167,30 @@
           </div>
         </div>
 
-        <!-- 3. تصوير الكاميرا الإلزامي ووصف العطل الإلزامي -->
+        <!-- 3. تصوير الكاميرا الإلزامي والتحقق الذكي من الوصف -->
         <div class="space-y-3">
           <div>
             <div class="flex justify-between items-center mb-1.5">
-              <label class="text-xs font-bold text-slate-800">3. صورة العطل الحية (إلزامية بالكاميرا)</label>
-              <span id="photo-status-badge" class="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">مطلوب التقاط صورة</span>
+              <label class="text-xs font-bold text-slate-800">3. صورة العطل الحية (بالكاميرا فقط)</label>
+              <span id="photo-status-badge" class="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">مطلوب التصوير</span>
             </div>
 
-            <!-- زر فتح الكاميرا المباشر -->
+            <!-- إجبار الكاميرا الحية -->
             <input type="file" accept="image/*" capture="environment" id="report-img" onchange="handleImageCapture(this)" class="hidden" />
             
             <button type="button" onclick="document.getElementById('report-img').click()" class="w-full py-3.5 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center gap-1.5 active:scale-98 transition cursor-pointer">
               <span class="text-2xl">📸</span>
-              <span class="text-xs font-bold text-slate-900">اضغط لفتح الكاميرا والتقاط صورة العطل</span>
-              <span class="text-[10px] text-slate-500">لا يمكن إرسال البلاغ بدون توثيق مصوّر</span>
+              <span class="text-xs font-bold text-slate-900">فتح الكاميرا وتصوير المشكلة</span>
+              <span class="text-[10px] text-slate-500">يشترط التقاط صورة فورية للعطل في مكانه</span>
             </button>
 
-            <!-- معاينة الصورة بعد التقاطها -->
+            <!-- معاينة الصورة -->
             <div id="photo-preview-container" style="display: none;" class="mt-2 relative rounded-2xl overflow-hidden border border-slate-300">
               <img id="photo-preview-img" src="" alt="صورة العطل" class="w-full h-44 object-cover" />
               <div class="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur-xs text-white text-[10px] px-2.5 py-1 rounded-lg font-bold flex items-center gap-1">
-                <span>✓ تم توثيق الصورة بنجاح</span>
+                <span>✓ تم توثيق الصورة بالكاميرا</span>
               </div>
-              <button type="button" onclick="removeCapturedPhoto()" class="absolute top-2 left-2 bg-rose-600 text-white text-xs px-2.5 py-1 rounded-lg font-bold hover:bg-rose-700 shadow">
+              <button type="button" onclick="removeCapturedPhoto()" class="absolute top-2 left-2 bg-rose-600 text-white text-xs px-2.5 py-1 rounded-lg font-bold hover:bg-rose-700 shadow cursor-pointer">
                 إعادة التقاط
               </button>
             </div>
@@ -201,16 +198,17 @@
 
           <div>
             <div class="flex justify-between items-center mb-1">
-              <label class="text-xs font-bold text-slate-800">4. وصف المشكلة (إلزامي)</label>
+              <label class="text-xs font-bold text-slate-800">4. وصف المشكلة (يجب أن يطابق فئة العطل)</label>
               <span id="desc-status-badge" class="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">مطلوب الوصف</span>
             </div>
-            <textarea id="report-desc" oninput="checkFormValidity()" rows="2" placeholder="اكتب وصفاً دقيقاً للمشكلة وأقرب معلم للمساعدة في الوصول..." class="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-slate-900 outline-none"></textarea>
+            <textarea id="report-desc" oninput="checkFormValidity()" rows="2" placeholder="اكتب وصفاً دقيقاً ومطابقاً لنوع المشكلة..." class="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-slate-900 outline-none"></textarea>
+            <p id="desc-error-hint" class="text-[10px] text-rose-600 font-bold mt-1 hidden"></p>
           </div>
         </div>
 
         <!-- شريط فحص المتطلبات الثلاثة -->
         <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-[11px]">
-          <span class="font-extrabold text-slate-900 block text-xs mb-1">متطلبات اعتماد البلاغ:</span>
+          <span class="font-extrabold text-slate-900 block text-xs mb-1">شروط الاعتماد الصارمة:</span>
           <div class="flex items-center gap-2" id="req-loc">
             <span class="text-rose-600 font-bold">✕</span>
             <span class="text-slate-600">تثبيت الموقع الجغرافي داخل سهل حوران</span>
@@ -221,13 +219,13 @@
           </div>
           <div class="flex items-center gap-2" id="req-desc">
             <span class="text-rose-600 font-bold">✕</span>
-            <span class="text-slate-600">كتابة وصف العطل في الخانة المخصصة</span>
+            <span class="text-slate-600">كتابة وصف يطابق الفئة المحددة</span>
           </div>
         </div>
 
         <!-- زر الإرسال -->
         <button type="button" id="submit-btn" disabled onclick="submitReport()" class="w-full py-3.5 bg-slate-400 opacity-50 cursor-not-allowed text-white font-bold text-xs rounded-xl shadow transition">
-          يرجى استكمال المتطلبات الثلاثة أعلاه للإرسال
+          يرجى استكمال الشروط الثلاثة أعلاه للإرسال
         </button>
       </div>
 
@@ -269,11 +267,11 @@
         <div class="grid grid-cols-3 gap-2 mt-2.5">
           <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 text-center">
             <span class="text-[9px] font-bold text-slate-400 block">إجمالي الوارد</span>
-            <span class="text-sm swiss-code font-black text-slate-950" id="stat-total">1</span>
+            <span class="text-sm swiss-code font-black text-slate-950" id="stat-total">0</span>
           </div>
           <div class="bg-amber-50 p-2 rounded-xl border border-amber-200 text-center">
             <span class="text-[9px] font-bold text-amber-800 block">قيد التنفيذ</span>
-            <span class="text-sm swiss-code font-black text-amber-900" id="stat-pending">1</span>
+            <span class="text-sm swiss-code font-black text-amber-900" id="stat-pending">0</span>
           </div>
           <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-200 text-center">
             <span class="text-[9px] font-bold text-emerald-800 block">تم حلّها</span>
@@ -287,7 +285,7 @@
           type="text" 
           id="admin-search-input" 
           oninput="renderAdminReports()" 
-          placeholder="🔍 بحث برقم البلاغ..." 
+          placeholder="🔍 بحث برقم البلاغ أو البلدة..." 
           class="w-full text-xs p-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:border-slate-950 font-bold"
         />
 
@@ -305,24 +303,22 @@
 
   </main>
 
-  <!-- ================== نافذة تفاصيل البلاغ الكاملة للمشرف (Detail Modal) ================== -->
+  <!-- نافذة تفاصيل البلاغ الكاملة للمشرف -->
   <div id="detail-modal" style="display: none;" class="fixed inset-0 z-50 bg-slate-950/75 items-center justify-center p-3.5 overflow-y-auto">
     <div class="bg-white rounded-3xl max-w-sm w-full border border-slate-200 shadow-2xl overflow-hidden my-auto">
       
-      <!-- رأس نافذة التفاصيل -->
       <div class="p-4 bg-slate-950 text-white flex justify-between items-center">
         <div>
           <span class="text-[10px] text-emerald-400 font-bold block uppercase tracking-wider">تفاصيل البلاغ الميداني</span>
           <h3 class="font-extrabold text-sm swiss-code" id="modal-report-id">CH-SH-0000</h3>
         </div>
-        <button type="button" onclick="closeDetailModal()" class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-bold hover:bg-slate-700">
+        <button type="button" onclick="closeDetailModal()" class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-bold hover:bg-slate-700 cursor-pointer">
           ✕
         </button>
       </div>
 
       <div class="p-4 space-y-3.5 max-h-[75vh] overflow-y-auto text-xs">
         
-        <!-- بطاقات المعلومات السريعة -->
         <div class="grid grid-cols-2 gap-2">
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
             <span class="text-[10px] text-slate-500 block font-bold">المنطقة والبلدة</span>
@@ -334,15 +330,13 @@
           </div>
         </div>
 
-        <!-- صورة البلاغ الحية الملتقطة -->
         <div>
-          <label class="block text-[11px] font-extrabold text-slate-800 mb-1">📸 الصورة الميدانية الملتقطة بالكاميرا:</label>
+          <label class="block text-[11px] font-extrabold text-slate-800 mb-1">📸 الصورة الميدانية الحية بالكاميرا:</label>
           <div id="modal-photo-wrapper" class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 text-center">
             <img id="modal-report-img" src="" alt="صورة البلاغ" class="w-full h-44 object-cover" />
           </div>
         </div>
 
-        <!-- نص وصف المشكلة -->
         <div>
           <label class="block text-[11px] font-extrabold text-slate-800 mb-1">✍️ وصف المشكلة من المواطن:</label>
           <p id="modal-report-desc" class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-medium leading-relaxed">
@@ -350,10 +344,9 @@
           </p>
         </div>
 
-        <!-- خريطة موقع البلاغ الدقيق وزر الملاحة -->
         <div>
           <div class="flex justify-between items-center mb-1">
-            <label class="text-[11px] font-extrabold text-slate-800">📍 الموقع الجغرافي المثبت:</label>
+            <label class="text-[11px] font-extrabold text-slate-800">📍 الموقع الجغرافي المطابق 100%:</label>
             <a id="modal-gmaps-link" href="#" target="_blank" class="text-[10px] bg-emerald-50 text-emerald-800 font-bold border border-emerald-300 px-2.5 py-0.5 rounded-lg flex items-center gap-1 hover:bg-emerald-100">
               <span>فتح في Google Maps ↗</span>
             </a>
@@ -362,12 +355,11 @@
           <p id="modal-coords" class="text-[10px] font-mono text-slate-500 mt-1 text-center font-bold">32.0000, 35.0000</p>
         </div>
 
-        <!-- أزرار الإجراءات (ترقية ومسح البلاغ) -->
         <div class="pt-2 border-t border-slate-200 flex gap-2">
-          <button type="button" id="modal-advance-btn" onclick="" class="w-2/3 py-2.5 bg-slate-950 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition">
+          <button type="button" id="modal-advance-btn" onclick="" class="w-2/3 py-2.5 bg-slate-950 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition cursor-pointer">
             ترقية للمرحلة التالية ➔
           </button>
-          <button type="button" id="modal-delete-btn" onclick="" class="w-1/3 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition">
+          <button type="button" id="modal-delete-btn" onclick="" class="w-1/3 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition cursor-pointer">
             مسح البلاغ 🗑️
           </button>
         </div>
@@ -480,6 +472,16 @@
       maxLng: 36.0500 
     };
 
+    // قاموس الكلمات المفتاحية للتحقق الذكي من تطابق الوصف مع الفئة
+    const CATEGORY_KEYWORDS = {
+      'تراكم النفايات': ['نفايات', 'قمامة', 'حاوية', 'حاويات', 'زبالة', 'نظافة', 'أوساخ', 'مكب', 'تراكم'],
+      'هبوطات وتلف الطرق': ['شارع', 'طريق', 'حفرة', 'هبوط', 'تزفيت', 'زفتة', 'مطبات', 'تلف', 'تشقق'],
+      'إنارة الشوارع': ['إنارة', 'عمود', 'لمبة', 'ضوء', 'كهرباء', 'محول', 'ظلام', 'كشاف', 'عطل'],
+      'تصريف مياه الأمطار': ['مطر', 'تصريف', 'منهل', 'مناهل', 'سيل', 'مياه', 'فيضان', 'مجاري', 'انسداد'],
+      'الأرصفة والمرافق': ['رصيف', 'حديقة', 'أرصفة', 'أشجار', 'بلاط', 'مرفق', 'ساحة', 'مظلة'],
+      'ملاحظات أخرى': []
+    };
+
     let currentCategory = 'تراكم النفايات';
     let currentTown = '';
     let selectedLat = null;
@@ -492,20 +494,8 @@
 
     const STEPS = ['تم الاستلام', 'المراجعة الفنية', 'الفريق الميداني', 'تم الإنجاز'];
 
-    // نموذج أولي يحتوي على إحداثيات وصورة افتراضية للمعاينة
-    let reports = [
-      {
-        id: 'CH-SH-4102',
-        category: 'إنارة الشوارع',
-        town: 'الشجرة',
-        lat: 32.6515,
-        lng: 35.9420,
-        desc: 'صيانة وحدة إنارة ومحول بالشارع الحيوي قرب المدرسة الثانوية للبنات',
-        photo: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&auto=format&fit=crop&q=60',
-        stepIndex: 2,
-        time: 'منذ 45 دقيقة'
-      }
-    ];
+    // مصفوفة البلاغات تبدأ نظيفة من أي بيانات تجريبية وهمية
+    let reports = JSON.parse(localStorage.getItem('sahl_live_reports') || '[]');
 
     window.addEventListener('DOMContentLoaded', () => {
       const savedMode = localStorage.getItem('sahl_vision_mode');
@@ -564,28 +554,50 @@
       document.getElementById('photo-preview-container').style.display = 'none';
       
       const badge = document.getElementById('photo-status-badge');
-      badge.innerText = 'مطلوب التقاط صورة';
+      badge.innerText = 'مطلوب التصوير';
       badge.className = 'text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded';
 
       checkFormValidity();
     }
 
+    // ==========================================
+    // محرك الفحص الذكي: التحقق من تطابق الوصف مع الفئة
+    // ==========================================
     function checkFormValidity() {
       const desc = (document.getElementById('report-desc')?.value || '').trim();
       const descBadge = document.getElementById('desc-status-badge');
+      const descErrHint = document.getElementById('desc-error-hint');
       const submitBtn = document.getElementById('submit-btn');
 
-      const hasDesc = desc.length >= 3;
-      if (hasDesc) {
-        descBadge.innerText = '✓ تم الوصف';
-        descBadge.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded';
-        document.getElementById('req-desc').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">تم إدخال وصف المشكلة</span>`;
-      } else {
+      let isDescValid = false;
+      const expectedWords = CATEGORY_KEYWORDS[currentCategory] || [];
+
+      if (desc.length < 5) {
         descBadge.innerText = 'مطلوب الوصف';
         descBadge.className = 'text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded';
-        document.getElementById('req-desc').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">كتابة وصف العطل في الخانة المخصصة</span>`;
+        descErrHint.classList.add('hidden');
+        document.getElementById('req-desc').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">كتابة وصف العطل (5 أحرف على الأقل)</span>`;
+      } else {
+        // التحقق من أن النص يحتوي على كلمات تدل على المشكلة أو فئتها
+        const matchesCategory = expectedWords.length === 0 || expectedWords.some(w => desc.includes(w));
+        
+        if (matchesCategory) {
+          isDescValid = true;
+          descBadge.innerText = '✓ الوصف مطابق للفئة';
+          descBadge.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded';
+          descErrHint.classList.add('hidden');
+          document.getElementById('req-desc').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">الوصف مطابق لفئة (${currentCategory})</span>`;
+        } else {
+          isDescValid = false;
+          descBadge.innerText = '⚠️ الوصف غير مطابق';
+          descBadge.className = 'text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded';
+          descErrHint.innerText = `تنبيه: أنت اخترت فئة "${currentCategory}"، يرجى كتابة وصف يوضح تفاصيلها بوضوح ليتم قبول البلاغ.`;
+          descErrHint.classList.remove('hidden');
+          document.getElementById('req-desc').innerHTML = `<span class="text-amber-600 font-bold">⚠️</span> <span class="text-amber-800 font-bold">الوصف لا يتطابق مع فئة (${currentCategory})</span>`;
+        }
       }
 
+      // فحص متطلب الصورة
       const hasPhoto = !!capturedPhotoData;
       if (hasPhoto) {
         document.getElementById('req-photo').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">تم التقاط الصورة بالكاميرا بنجاح</span>`;
@@ -593,6 +605,7 @@
         document.getElementById('req-photo').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">تصوير المشكلة مباشرة بالكاميرا</span>`;
       }
 
+      // فحص متطلب الموقع
       const hasLocation = isLocationVerified;
       if (hasLocation) {
         document.getElementById('req-loc').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">تم تثبيت الموقع الفعلي في (${currentTown})</span>`;
@@ -600,7 +613,8 @@
         document.getElementById('req-loc').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">تثبيت الموقع الجغرافي داخل سهل حوران</span>`;
       }
 
-      if (hasLocation && hasPhoto && hasDesc) {
+      // تفعيل زر الإرسال عند استيفاء الشروط الثلاثة بالكامل
+      if (hasLocation && hasPhoto && isDescValid) {
         submitBtn.disabled = false;
         submitBtn.className = 'w-full py-3.5 bg-slate-950 hover:bg-slate-900 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer';
         submitBtn.innerText = `إرسال البلاغ الموثق بالكامل إلى بلدية سهل حوران (${currentTown}) ✓`;
@@ -611,8 +625,8 @@
         let missing = [];
         if (!hasLocation) missing.push('الموقع بالـ GPS');
         if (!hasPhoto) missing.push('صورة الكاميرا');
-        if (!hasDesc) missing.push('وصف المشكلة');
-        submitBtn.innerText = `متبقي لإتمام الإرسال: (${missing.join(' + ')})`;
+        if (!isDescValid) missing.push('تطابق الوصف');
+        submitBtn.innerText = `متبقي لاعتماد البلاغ: (${missing.join(' + ')})`;
       }
     }
 
@@ -668,7 +682,7 @@
             }
 
             infoEl.innerText = `✅ موقع موثّق: أنت متواجد في نطاق (${detectedTown})`;
-            subInfoEl.innerText = `الإحداثيات: ${lat.toFixed(4)}, ${lng.toFixed(4)} (دقة ±${accuracy}م)`;
+            subInfoEl.innerText = `الإحداثيات: ${lat.toFixed(5)}, ${lng.toFixed(5)} (دقة ±${accuracy}م)`;
             badgeEl.innerText = 'نطاق معتمد ✓';
             badgeEl.className = 'text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800';
             statusBox.className = 'mt-2.5 p-3 rounded-xl border text-xs flex items-center justify-between transition-all bg-emerald-50 border-emerald-300';
@@ -742,27 +756,29 @@
         b.className = 'cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-200 bg-slate-50 text-slate-700 text-right active:scale-95 transition cursor-pointer';
       });
       btn.className = 'cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-950 bg-slate-950 text-white text-right active:scale-95 transition cursor-pointer';
+      checkFormValidity();
     }
 
     function submitReport() {
       const desc = (document.getElementById('report-desc')?.value || '').trim();
 
-      if (!isLocationVerified) {
-        alert('مرفوض: يجب التحقق من موقعك داخل سهل حوران أولاً.');
+      if (!isLocationVerified || !selectedLat || !selectedLng) {
+        alert('مرفوض: يجب التحقق من موقعك الفعلي داخل سهل حوران أولاً.');
         return;
       }
       if (!capturedPhotoData) {
-        alert('مرفوض: يجب التقاط صورة للعطل بالكاميرا لإتمام البلاغ.');
+        alert('مرفوض: يجب تصوير العطل مباشرة بالكاميرا.');
         return;
       }
       if (!desc) {
-        alert('مرفوض: يجب كتابة وصف مختصر للمشكلة.');
+        alert('مرفوض: يجب إدخال وصف المشكلة.');
         return;
       }
 
       const code = 'CH-SH-' + Math.floor(1000 + Math.random() * 9000);
 
-      reports.unshift({
+      // حفظ الإحداثيات والصورة والوصف الفعلي بدقة 100%
+      const newReport = {
         id: code,
         category: currentCategory,
         town: currentTown,
@@ -772,7 +788,10 @@
         photo: capturedPhotoData,
         stepIndex: 0,
         time: 'الآن'
-      });
+      };
+
+      reports.unshift(newReport);
+      localStorage.setItem('sahl_live_reports', JSON.stringify(reports));
 
       document.getElementById('ticket-number').innerText = code;
       document.getElementById('success-box').style.display = 'block';
@@ -784,7 +803,7 @@
     }
 
     // ==========================================
-    // لوحة الإدارة، التفاصيل، ومسح البلاغات
+    // لوحة الإدارة، التفاصيل المطابقة، ومسح البلاغات
     // ==========================================
     function isAdminSessionActive() {
       const session = localStorage.getItem('sahl_admin_session_expiry');
@@ -858,7 +877,6 @@
       renderAdminReports();
     }
 
-    // بناء قائمة البلاغات مع أزرار التفاصيل والحذف
     function renderAdminReports() {
       const container = document.getElementById('admin-reports-list');
       const searchQuery = (document.getElementById('admin-search-input')?.value || '').toLowerCase();
@@ -874,13 +892,15 @@
         list = list.filter(r => r.town === currentFilterTown);
       }
       if (searchQuery) {
-        list = list.filter(r => r.id.toLowerCase().includes(searchQuery) || r.desc.toLowerCase().includes(searchQuery));
+        list = list.filter(r => r.id.toLowerCase().includes(searchQuery) || r.desc.toLowerCase().includes(searchQuery) || r.town.toLowerCase().includes(searchQuery));
       }
 
       if (list.length === 0) {
         container.innerHTML = `
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-400">
-            <p class="text-xs font-bold">لا توجد بلاغات مسجلة في هذا النطاق</p>
+          <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-400">
+            <span class="text-3xl block mb-2">📋</span>
+            <p class="text-xs font-bold text-slate-600">لا توجد بلاغات مسجلة حالياً</p>
+            <p class="text-[10px] text-slate-400 mt-1">أي بلاغ يرسله المواطن سيظهر هنا مباشرة مع الصورة والموقع الدقيق</p>
           </div>
         `;
         return;
@@ -922,7 +942,6 @@
 
           ${stepsHtml}
 
-          <!-- أزرار الإجراءات على الكرت: عرض التفاصيل + مسح -->
           <div class="pt-2 border-t border-slate-100 flex justify-between items-center gap-2">
             <button type="button" onclick="openReportDetails('${rep.id}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-900 text-[11px] font-bold rounded-lg transition flex items-center gap-1 active:scale-95 cursor-pointer">
               <span>عرض التفاصيل والخريطة 🔍</span>
@@ -938,7 +957,7 @@
     }
 
     // ==========================================
-    // فتح وعرض تفاصيل البلاغ للمشرف
+    // فتح وعرض تفاصيل البلاغ مع مطابقة الموقع 100%
     // ==========================================
     function openReportDetails(id) {
       const rep = reports.find(r => r.id === id);
@@ -949,7 +968,6 @@
       document.getElementById('modal-report-category').innerText = rep.category;
       document.getElementById('modal-report-desc').innerText = rep.desc;
 
-      // صورة العطل
       const imgEl = document.getElementById('modal-report-img');
       const photoWrap = document.getElementById('modal-photo-wrapper');
       if (rep.photo) {
@@ -959,13 +977,12 @@
         photoWrap.style.display = 'none';
       }
 
-      // الإحداثيات ورابط خرائط جوجل للملاحة
-      const lat = rep.lat || 32.6515;
-      const lng = rep.lng || 35.9420;
-      document.getElementById('modal-coords').innerText = `الإحداثيات: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+      // مطابقة إحداثيات المشرف 100% مع هاتف المواطن
+      const lat = rep.lat;
+      const lng = rep.lng;
+      document.getElementById('modal-coords').innerText = `الإحداثيات الحقيقية: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
       document.getElementById('modal-gmaps-link').href = `https://www.google.com/maps?q=${lat},${lng}`;
 
-      // أزرار الترقية والمسح داخل النافذة
       const advBtn = document.getElementById('modal-advance-btn');
       if (rep.stepIndex < 3) {
         advBtn.style.display = 'block';
@@ -983,10 +1000,9 @@
         deleteReport(rep.id);
       };
 
-      // إظهار النافذة
       document.getElementById('detail-modal').style.display = 'flex';
 
-      // رسم الخريطة التفصيلية لموقع البلاغ
+      // رسم خريطة مطابقة 1:1 لموقع المشكلة
       setTimeout(() => {
         try {
           if (!detailMap) {
@@ -1008,10 +1024,10 @@
       document.getElementById('detail-modal').style.display = 'none';
     }
 
-    // مسح / حذف البلاغ نهائياً
     function deleteReport(id) {
       if (confirm(`هل أنت متأكد من مسح وحذف البلاغ (${id}) نهائياً من سجلات البلدية؟`)) {
         reports = reports.filter(r => r.id !== id);
+        localStorage.setItem('sahl_live_reports', JSON.stringify(reports));
         closeDetailModal();
         renderAdminReports();
       }
@@ -1021,6 +1037,7 @@
       const rep = reports.find(r => r.id === id);
       if (rep && rep.stepIndex < 3) {
         rep.stepIndex++;
+        localStorage.setItem('sahl_live_reports', JSON.stringify(reports));
         renderAdminReports();
       }
     }
