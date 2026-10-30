@@ -29,8 +29,8 @@
     .swiss-code { font-family: 'Space Mono', monospace; }
     
     #map { 
-      height: 260px !important; 
-      min-height: 260px !important;
+      height: 250px !important; 
+      min-height: 250px !important;
       width: 100% !important; 
       border-radius: 1rem; 
       z-index: 10; 
@@ -60,8 +60,8 @@
       border: 3px solid #000000 !important;
     }
     body.low-vision-mode #map {
-      height: 320px !important;
-      min-height: 320px !important;
+      height: 300px !important;
+      min-height: 300px !important;
       border: 3px solid #000000 !important;
     }
   </style>
@@ -112,13 +112,13 @@
       <div class="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-sm">
         <div class="flex justify-between items-start mb-1">
           <span class="text-[10px] font-bold uppercase text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
-            النطاق الجغرافي الحصري
+            النظام الموثق بالدليل
           </span>
           <span class="text-[10px] text-slate-400 font-mono">الرمثا • الأردن</span>
         </div>
         <h2 class="text-sm font-extrabold text-white mt-1">تسجيل بلاغ خدمي فوري</h2>
         <p class="text-[11px] text-slate-300 mt-0.5">
-          مخصص حصرياً للمتواجدين داخل: الطرة • الشجرة • الذنيبة • عمراوة
+          يشترط: الصورة الحية بالكاميرا • الموقع الفعلي بالـ GPS • وصف المشكلة
         </p>
       </div>
 
@@ -141,13 +141,13 @@
         <!-- 2. الموقع الجغرافي المقفل بالـ GPS فقط -->
         <div>
           <div class="flex justify-between items-center mb-1.5">
-            <label class="text-xs font-bold text-slate-800">2. موقعك الفعلي (مقفل بالـ GPS)</label>
+            <label class="text-xs font-bold text-slate-800">2. موقعك الفعلي (مقفل بالـ GPS فقط)</label>
             <button type="button" onclick="locateUser(true)" class="text-xs font-bold text-slate-950 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-300 flex items-center gap-1 active:scale-95 transition cursor-pointer">
               <span>🎯 تثبيت موقعي الآن</span>
             </button>
           </div>
 
-          <!-- شارات توضح البلدة المكتشفة تلقائياً فقط (غير قابلة للاختيار اليدوي) -->
+          <!-- شارات توضح البلدة المكتشفة تلقائياً فقط -->
           <div class="grid grid-cols-4 gap-1.5 mb-2 pointer-events-none">
             <div id="badge-الطرة" class="town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-100 text-slate-400">الطرة</div>
             <div id="badge-الشجرة" class="town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-100 text-slate-400">الشجرة</div>
@@ -155,36 +155,82 @@
             <div id="badge-عمراوة" class="town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-100 text-slate-400">عمراوة</div>
           </div>
 
-          <!-- حاوية الخريطة (مقفل عليها اللمس اليدوي، تعتمد على موقع الـ GPS فقط) -->
           <div id="map"></div>
 
-          <!-- صندوق حالة التحقق الجغرافي والرفض/القبول -->
+          <!-- صندوق حالة التحقق الجغرافي -->
           <div id="geo-status-box" class="mt-2.5 p-3 rounded-xl border text-xs flex items-center justify-between transition-all bg-slate-50 border-slate-200">
             <div>
               <p id="geo-info" class="font-extrabold text-slate-800">📡 اضغط "تثبيت موقعي الآن" للتحقق من تواجدك</p>
-              <p id="geo-subinfo" class="text-[10px] text-slate-500 mt-0.5">النظام يتحقق من مطابقة إحداثياتك لبلدات سهل حوران</p>
+              <p id="geo-subinfo" class="text-[10px] text-slate-500 mt-0.5">يجب أن تكون متواجداً في سهل حوران لإتمام البلاغ</p>
             </div>
             <span id="geo-badge" class="text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-slate-200 text-slate-700">بانتظار GPS</span>
           </div>
         </div>
 
-        <!-- 3. الوصف والصورة -->
-        <div>
-          <label class="block text-xs font-bold text-slate-800 mb-1">3. صورة العطل ووصف المعلم</label>
-          <input type="file" accept="image/*" capture="environment" id="report-img" class="block w-full text-xs text-slate-500 file:mr-0 file:py-2 file:px-3 file:rounded-lg file:border file:border-slate-300 file:text-xs file:font-bold file:bg-white file:text-slate-800 mb-2 cursor-pointer" />
+        <!-- 3. تصوير الكاميرا الإلزامي ووصف العطل الإلزامي -->
+        <div class="space-y-3">
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="text-xs font-bold text-slate-800">3. صورة العطل الحية (إلزامية بالكاميرا)</label>
+              <span id="photo-status-badge" class="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">مطلوب التقاط صورة</span>
+            </div>
 
-          <textarea id="report-desc" rows="2" placeholder="اكتب تفاصيل إضافية أو أقرب معلم واضح..." class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-slate-900 outline-none"></textarea>
+            <!-- زر فتح الكاميرا المباشر -->
+            <input type="file" accept="image/*" capture="environment" id="report-img" onchange="handleImageCapture(this)" class="hidden" />
+            
+            <button type="button" onclick="document.getElementById('report-img').click()" class="w-full py-3.5 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center gap-1.5 active:scale-98 transition cursor-pointer">
+              <span class="text-2xl">📸</span>
+              <span class="text-xs font-bold text-slate-900">اضغط لفتح الكاميرا والتقاط صورة العطل</span>
+              <span class="text-[10px] text-slate-500">لا يمكن إرسال البلاغ بدون توثيق مصوّر</span>
+            </button>
+
+            <!-- معاينة الصورة بعد التقاطها -->
+            <div id="photo-preview-container" style="display: none;" class="mt-2 relative rounded-2xl overflow-hidden border border-slate-300">
+              <img id="photo-preview-img" src="" alt="صورة العطل" class="w-full h-44 object-cover" />
+              <div class="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur-xs text-white text-[10px] px-2.5 py-1 rounded-lg font-bold flex items-center gap-1">
+                <span>✓ تم توثيق الصورة بنجاح</span>
+              </div>
+              <button type="button" onclick="removeCapturedPhoto()" class="absolute top-2 left-2 bg-rose-600 text-white text-xs px-2.5 py-1 rounded-lg font-bold hover:bg-rose-700 shadow">
+                إعادة التقاط
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-xs font-bold text-slate-800">4. وصف المشكلة (إلزامي)</label>
+              <span id="desc-status-badge" class="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">مطلوب الوصف</span>
+            </div>
+            <textarea id="report-desc" oninput="checkFormValidity()" rows="2" placeholder="اكتب وصفاً دقيقاً للمشكلة وأقرب معلم للمساعدة في الوصول..." class="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-slate-900 outline-none"></textarea>
+          </div>
         </div>
 
-        <!-- زر الإرسال (يتعطل تلقائياً في حال كان المستخدم خارج سهل حوران) -->
-        <button type="button" id="submit-btn" onclick="submitReport()" class="w-full py-3 bg-slate-950 hover:bg-slate-900 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-400">
-          إرسال البلاغ والحصول على رقم التتبع
+        <!-- شريط فحص المتطلبات الثلاثة قبل التفعيل -->
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-[11px]">
+          <span class="font-extrabold text-slate-900 block text-xs mb-1">متطلبات اعتماد البلاغ:</span>
+          <div class="flex items-center gap-2" id="req-loc">
+            <span class="text-rose-600 font-bold">✕</span>
+            <span class="text-slate-600">تثبيت الموقع الجغرافي داخل سهل حوران</span>
+          </div>
+          <div class="flex items-center gap-2" id="req-photo">
+            <span class="text-rose-600 font-bold">✕</span>
+            <span class="text-slate-600">تصوير المشكلة مباشرة بالكاميرا</span>
+          </div>
+          <div class="flex items-center gap-2" id="req-desc">
+            <span class="text-rose-600 font-bold">✕</span>
+            <span class="text-slate-600">كتابة وصف العطل في الخانة المخصصة</span>
+          </div>
+        </div>
+
+        <!-- زر الإرسال -->
+        <button type="button" id="submit-btn" disabled onclick="submitReport()" class="w-full py-3.5 bg-slate-400 opacity-50 cursor-not-allowed text-white font-bold text-xs rounded-xl shadow transition">
+          يرجى استكمال المتطلبات الثلاثة أعلاه للإرسال
         </button>
       </div>
 
       <!-- بطاقة التأكيد -->
       <div id="success-box" style="display: none;" class="bg-emerald-50 border border-emerald-300 p-4 rounded-2xl text-center space-y-2">
-        <span class="inline-block px-2 py-0.5 bg-emerald-200 text-emerald-950 font-bold text-[10px] rounded">تم الإرسال بنجاح</span>
+        <span class="inline-block px-2 py-0.5 bg-emerald-200 text-emerald-950 font-bold text-[10px] rounded">تم استلام البلاغ الموثق</span>
         <h3 class="text-xs font-bold text-slate-900">رقم البلاغ المرجعي المعتمد:</h3>
         <div class="bg-white py-1.5 px-4 rounded-lg border border-slate-300 inline-block swiss-code font-bold text-base text-slate-950" id="ticket-number">
           CH-SH-0000
@@ -346,7 +392,6 @@
     const ADMIN_CREDENTIALS = { user: 'admin', pass: 'sahl2026' };
     const SESSION_DURATION_MS = 5 * 60 * 1000;
 
-    // إحداثيات بلدات سهل حوران
     const TOWNS = [
       { name: 'الطرة', lat: 32.6120, lng: 35.9910 },
       { name: 'الشجرة', lat: 32.6515, lng: 35.9420 },
@@ -354,7 +399,6 @@
       { name: 'عمراوة', lat: 32.6840, lng: 35.8850 }
     ];
 
-    // الحدود الجغرافية الدقيقة المعتمدة لسهل حوران (لواء الرمثا)
     const SAHL_BBOX = { 
       minLat: 32.5700, 
       maxLat: 32.7250, 
@@ -366,7 +410,8 @@
     let currentTown = '';
     let selectedLat = null;
     let selectedLng = null;
-    let isLocationVerified = false; // هل المستخدم متواجد فعلياً داخل سهل حوران؟
+    let isLocationVerified = false; // شرط 1: الموقع موثق في سهل حوران
+    let capturedPhotoData = null;  // شرط 2: صورة ملتقطة بالكاميرا
     let currentFilterTown = 'all';
     let map = null, marker = null, accuracyCircle = null;
 
@@ -378,6 +423,7 @@
         category: 'إنارة الشوارع',
         town: 'الشجرة',
         desc: 'صيانة وحدة إنارة ومحول بالشارع الحيوي قرب المدرسة',
+        photo: null,
         stepIndex: 2,
         time: 'منذ 45 دقيقة'
       }
@@ -390,8 +436,6 @@
       initMapSafely();
       renderAdminReports();
       setInterval(checkSessionExpiryLoop, 1000);
-      
-      // طلب الموقع وتثبيته فور فتح التطبيق
       locateUser(false);
     });
 
@@ -399,20 +443,15 @@
       try {
         if (typeof L === 'undefined') return;
 
-        // قفل الخريطة: إلغاء إمكانية اللمس والنقر العشوائي لمنع تحديد أماكن كاذبة
         map = L.map('map', { 
           zoomControl: false,
-          dragging: false, // لا يسمح بسحب الخريطة
+          dragging: false,
           touchZoom: false,
           scrollWheelZoom: false,
           doubleClickZoom: false
         }).setView([32.6450, 35.9500], 13);
         
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19
-        }).addTo(map);
-
-        // إنشاء الدبوس بدون إمكانية سحبه (مقفل تماماً)
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
         marker = L.marker([32.6450, 35.9500], { draggable: false }).addTo(map);
 
         setTimeout(() => { if (map) map.invalidateSize(); }, 300);
@@ -423,14 +462,100 @@
     }
 
     // ==========================================
-    // فحص الـ GPS الصارم والحظر خارج سهل حوران
+    // معالجة تصوير الكاميرا الإلزامي
+    // ==========================================
+    function handleImageCapture(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        capturedPhotoData = e.target.result;
+        document.getElementById('photo-preview-img').src = capturedPhotoData;
+        document.getElementById('photo-preview-container').style.display = 'block';
+        
+        const badge = document.getElementById('photo-status-badge');
+        badge.innerText = '✓ تم التقاط الصورة';
+        badge.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded';
+
+        checkFormValidity();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeCapturedPhoto() {
+      capturedPhotoData = null;
+      document.getElementById('report-img').value = '';
+      document.getElementById('photo-preview-container').style.display = 'none';
+      
+      const badge = document.getElementById('photo-status-badge');
+      badge.innerText = 'مطلوب التقاط صورة';
+      badge.className = 'text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded';
+
+      checkFormValidity();
+    }
+
+    // ==========================================
+    // التحقق من المتطلبات الثلاثة مجتمعة
+    // ==========================================
+    function checkFormValidity() {
+      const desc = (document.getElementById('report-desc')?.value || '').trim();
+      const descBadge = document.getElementById('desc-status-badge');
+      const submitBtn = document.getElementById('submit-btn');
+
+      // فحص متطلب الوصف
+      const hasDesc = desc.length >= 3;
+      if (hasDesc) {
+        descBadge.innerText = '✓ تم الوصف';
+        descBadge.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded';
+        document.getElementById('req-desc').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">تم إدخال وصف المشكلة</span>`;
+      } else {
+        descBadge.innerText = 'مطلوب الوصف';
+        descBadge.className = 'text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded';
+        document.getElementById('req-desc').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">كتابة وصف العطل في الخانة المخصصة</span>`;
+      }
+
+      // فحص متطلب الصورة
+      const hasPhoto = !!capturedPhotoData;
+      if (hasPhoto) {
+        document.getElementById('req-photo').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">تم التقاط الصورة بالكاميرا بنجاح</span>`;
+      } else {
+        document.getElementById('req-photo').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">تصوير المشكلة مباشرة بالكاميرا</span>`;
+      }
+
+      // فحص متطلب الموقع داخل سهل حوران
+      const hasLocation = isLocationVerified;
+      if (hasLocation) {
+        document.getElementById('req-loc').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">تم تثبيت الموقع الفعلي في (${currentTown})</span>`;
+      } else {
+        document.getElementById('req-loc').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">تثبيت الموقع الجغرافي داخل سهل حوران</span>`;
+      }
+
+      // هل الشروط الثلاثة جاهزة ومطابقة؟
+      if (hasLocation && hasPhoto && hasDesc) {
+        submitBtn.disabled = false;
+        submitBtn.className = 'w-full py-3.5 bg-slate-950 hover:bg-slate-900 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer';
+        submitBtn.innerText = `إرسال البلاغ الموثق بالكامل إلى بلدية سهل حوران (${currentTown}) ✓`;
+      } else {
+        submitBtn.disabled = true;
+        submitBtn.className = 'w-full py-3.5 bg-slate-400 opacity-50 cursor-not-allowed text-white font-bold text-xs rounded-xl shadow transition';
+        
+        let missing = [];
+        if (!hasLocation) missing.push('الموقع بالـ GPS');
+        if (!hasPhoto) missing.push('صورة الكاميرا');
+        if (!hasDesc) missing.push('وصف المشكلة');
+        submitBtn.innerText = `متبقي لإتمام الإرسال: (${missing.join(' + ')})`;
+      }
+    }
+
+    // ==========================================
+    // فحص الـ GPS الصارم
     // ==========================================
     function locateUser(isManualClick) {
       const infoEl = document.getElementById('geo-info');
       const subInfoEl = document.getElementById('geo-subinfo');
       const badgeEl = document.getElementById('geo-badge');
       const statusBox = document.getElementById('geo-status-box');
-      const submitBtn = document.getElementById('submit-btn');
 
       if (!navigator.geolocation) {
         if (isManualClick) alert('خدمة تحديد المواقع (GPS) غير مدعومة على متصفحك');
@@ -448,7 +573,6 @@
           const lng = pos.coords.longitude;
           const accuracy = Math.round(pos.coords.accuracy);
 
-          // 1. فحص هل المستخدم داخل النطاق الجغرافي لسهل حوران؟
           const isInside = (
             lat >= SAHL_BBOX.minLat && 
             lat <= SAHL_BBOX.maxLat && 
@@ -457,17 +581,14 @@
           );
 
           if (isInside) {
-            // ✅ قبول الموقع
             isLocationVerified = true;
             selectedLat = lat;
             selectedLng = lng;
 
-            // تحديد البلدة التابعة تلقائياً
             const detectedTown = getNearestTown(lat, lng);
             currentTown = detectedTown;
             highlightTownBadge(detectedTown);
 
-            // تحريك الخريطة للموقع الحقيقي
             if (map && marker) {
               marker.setLatLng([lat, lng]);
               map.setView([lat, lng], 16);
@@ -481,19 +602,12 @@
               }).addTo(map);
             }
 
-            // تحديث رسائل القبول وتفعيل الإرسال
-            infoEl.innerText = `✅ موقع موثّق: أنت متواجد في منطقة (${detectedTown})`;
+            infoEl.innerText = `✅ موقع موثّق: أنت متواجد في نطاق (${detectedTown})`;
             subInfoEl.innerText = `الإحداثيات: ${lat.toFixed(4)}, ${lng.toFixed(4)} (دقة ±${accuracy}م)`;
             badgeEl.innerText = 'نطاق معتمد ✓';
             badgeEl.className = 'text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800';
             statusBox.className = 'mt-2.5 p-3 rounded-xl border text-xs flex items-center justify-between transition-all bg-emerald-50 border-emerald-300';
-            
-            // تفعيل زر الإرسال
-            submitBtn.disabled = false;
-            submitBtn.innerText = `إرسال البلاغ إلى بلدية سهل حوران (${detectedTown})`;
-
           } else {
-            // ⛔ رفض الموقع نهائياً لكونه خارج سهل حوران
             isLocationVerified = false;
             selectedLat = null;
             selectedLng = null;
@@ -501,28 +615,24 @@
             resetTownBadges();
 
             infoEl.innerText = '⛔ مرفوض: موقعك الحالي خارج حدود سهل حوران';
-            subInfoEl.innerText = 'هذا التطبيق مخصص حصرياً لمناطق: الطرة، الشجرة، الذنيبة، وعمراوة';
+            subInfoEl.innerText = 'الخدمة مقتصرة فقط على: الطرة، الشجرة، الذنيبة، وعمراوة';
             badgeEl.innerText = 'مرفوض ✕';
             badgeEl.className = 'text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-rose-100 text-rose-800';
             statusBox.className = 'mt-2.5 p-3 rounded-xl border text-xs flex items-center justify-between transition-all bg-rose-50 border-rose-300';
 
-            // تعطيل زر الإرسال بالكامل
-            submitBtn.disabled = true;
-            submitBtn.innerText = '⛔ لا يمكن الإرسال (أنت خارج سهل حوران)';
-
             if (isManualClick) {
-              alert('تم رفض العملية: تم رصد موقعك خارج النطاق الجغرافي لبلدية سهل حوران. التطبيق يعمل فقط داخل بلدات الطرة، الشجرة، الذنيبة، وعمراوة.');
+              alert('تم رفض العملية: تم رصد موقعك خارج النطاق الجغرافي لبلدية سهل حوران.');
             }
           }
+          checkFormValidity();
         },
         (err) => {
           isLocationVerified = false;
-          submitBtn.disabled = true;
-          submitBtn.innerText = '⛔ بانتظار تفعيل إذن الموقع (GPS)';
           infoEl.innerText = '⚠️ يرجى تفعيل إذن الموقع الجغرافي (GPS)';
           subInfoEl.innerText = 'يجب تفعيل GPS للتحقق من تواجدك داخل حدود البلدية';
           badgeEl.innerText = 'GPS مغلق';
           badgeEl.className = 'text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-amber-100 text-amber-800';
+          checkFormValidity();
           if (isManualClick) alert('يرجى تفعيل الـ GPS وإعطاء الإذن للمتصفح للتحقق من موقعك.');
         },
         { enableHighAccuracy: true, timeout: 7000, maximumAge: 0 }
@@ -547,11 +657,9 @@
       TOWNS.forEach(t => {
         const badge = document.getElementById(`badge-${t.name}`);
         if (badge) {
-          if (t.name === name) {
-            badge.className = 'town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-950 text-white shadow-xs';
-          } else {
-            badge.className = 'town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-100 text-slate-400';
-          }
+          badge.className = (t.name === name)
+            ? 'town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-950 text-white shadow-xs'
+            : 'town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-100 text-slate-400';
         }
       });
     }
@@ -572,33 +680,47 @@
     }
 
     function submitReport() {
-      // تحقق أمني إضافي قبل الإرسال
-      if (!isLocationVerified || !selectedLat || !selectedLng) {
-        alert('لا يمكن إرسال البلاغ: موقعك يقع خارج حدود بلدية سهل حوران (الطرة، الشجرة، الذنيبة، عمراوة).');
+      const desc = (document.getElementById('report-desc')?.value || '').trim();
+
+      // تدقيق أمني نهائي مانع للتحايل
+      if (!isLocationVerified) {
+        alert('مرفوض: يجب التحقق من موقعك داخل سهل حوران أولاً.');
+        return;
+      }
+      if (!capturedPhotoData) {
+        alert('مرفوض: يجب التقاط صورة للعطل بالكاميرا لإتمام البلاغ.');
+        return;
+      }
+      if (!desc) {
+        alert('مرفوض: يجب كتابة وصف مختصر للمشكلة.');
         return;
       }
 
-      const desc = document.getElementById('report-desc').value.trim() || 'بلاغ معتمد ومثبت جغرافياً';
       const code = 'CH-SH-' + Math.floor(1000 + Math.random() * 9000);
 
+      // تسجيل البلاغ مع حفظ الصورة والوصف والموقع الميداني
       reports.unshift({
         id: code,
         category: currentCategory,
         town: currentTown,
         desc: desc,
+        photo: capturedPhotoData,
         stepIndex: 0,
         time: 'الآن'
       });
 
       document.getElementById('ticket-number').innerText = code;
       document.getElementById('success-box').style.display = 'block';
+      
+      // تفريغ النموذج وإعادة القفل
       document.getElementById('report-desc').value = '';
+      removeCapturedPhoto();
       renderAdminReports();
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
     // ==========================================
-    // لوحة الإدارة والأمان
+    // لوحة الإدارة وعرض صور البلاغات
     // ==========================================
     function isAdminSessionActive() {
       const session = localStorage.getItem('sahl_admin_session_expiry');
@@ -715,6 +837,16 @@
         });
         stepsHtml += '</div>';
 
+        // عرض صورة البلاغ الحية إذا وجدت
+        let photoHtml = '';
+        if (rep.photo) {
+          photoHtml = `
+            <div class="mt-2 rounded-xl overflow-hidden border border-slate-200">
+              <img src="${rep.photo}" alt="صورة البلاغ الميدانية" class="w-full h-36 object-cover" />
+            </div>
+          `;
+        }
+
         card.innerHTML = `
           <div class="flex justify-between items-start">
             <div class="flex items-center gap-1.5">
@@ -727,6 +859,7 @@
           <div>
             <h4 class="text-xs font-black text-slate-950">${rep.category}</h4>
             <p class="text-xs text-slate-600 mt-0.5 leading-relaxed bg-slate-50 p-2 rounded-xl border border-slate-100 font-medium">${rep.desc}</p>
+            ${photoHtml}
           </div>
 
           ${stepsHtml}
