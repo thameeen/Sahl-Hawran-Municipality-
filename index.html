@@ -143,12 +143,12 @@
               <p class="text-[10px] text-indigo-700 font-bold">التحقق من صحة الصورة ومطابقتها لموقع وفئة المشكلة</p>
             </div>
 
-            <div id="ai-reject-alert" style="display: none;" class="mt-2 p-3.5 bg-rose-50 border-2 border-rose-300 rounded-2xl space-y-1">
+            <div id="ai-reject-alert" style="display: none;" class="mt-2 p-3.5 bg-rose-50 border border-rose-200 rounded-2xl space-y-1.5">
               <div class="flex items-center gap-2 text-rose-800 font-black text-xs">
-                <span>⛔ تم رفض الصورة بواسطة التدقيق الذكي</span>
+                <span>⛔ تم رفض الصورة بواسطة الذكاء الاصطناعي</span>
               </div>
               <p id="ai-reject-reason" class="text-xs text-rose-700 leading-relaxed font-bold">
-                الصورة الملتقطة غير مطابقة لفئة البلاغ أو تحتوي على عناصر منزلية/شخصية.
+                تم رصد عنصر غير مناسب. يرجى تصوير العطل الميداني في الشارع مباشرة.
               </p>
             </div>
 
@@ -360,26 +360,28 @@
     };
 
     const AI_CATEGORY_PATTERNS = {
-      'إنارة الشوارع': ['lamp', 'light', 'lantern', 'pole', 'post', 'spotlight', 'traffic light', 'beacon', 'torch', 'bulb', 'electric', 'wire', 'streetlight', 'lighting', 'fixture'],
-      'تراكم النفايات': ['trash', 'ashcan', 'bin', 'garbage', 'waste', 'crate', 'barrel', 'carton', 'bag', 'plastic', 'dumpster', 'litter', 'rubbish', 'box', 'can', 'container', 'refuse', 'debris'],
-      'هبوطات وتلف الطرق': ['street', 'road', 'asphalt', 'curb', 'pavement', 'sidewalk', 'barrier', 'stone', 'gravel', 'concrete', 'pothole', 'crack', 'ground', 'brick', 'rock', 'hole'],
-      'تصريف مياه الأمطار': ['water', 'puddle', 'drain', 'sewer', 'manhole', 'gutter', 'stream', 'mud', 'rain', 'pipe', 'flood', 'leak', 'lake', 'fountain', 'pool'],
-      'الأرصفة والمرافق': ['tree', 'park', 'bench', 'sidewalk', 'fence', 'pavement', 'grass', 'garden', 'plant', 'bush']
+      'تراكم النفايات': ['trash', 'garbage', 'waste', 'bin', 'ashcan', 'dumpster', 'litter', 'rubbish', 'refuse', 'barrel', 'container'],
+      'إنارة الشوارع': ['lamp', 'streetlight', 'traffic light', 'lantern', 'spotlight', 'pole', 'post', 'bulb', 'lighting'],
+      'هبوطات وتلف الطرق': ['street', 'road', 'asphalt', 'pothole', 'crack', 'pavement', 'sidewalk', 'curb', 'hole'],
+      'تصريف مياه الأمطار': ['water', 'puddle', 'flood', 'drain', 'sewer', 'manhole', 'gutter', 'mud', 'pipe'],
+      'الأرصفة والمرافق': ['tree', 'park', 'bench', 'sidewalk', 'fence', 'grass', 'garden']
     };
 
     const FORBIDDEN_OBJECTS = [
-      // أشخاص وملابس
-      'person', 'people', 'man', 'woman', 'boy', 'girl', 'face', 'head', 'hand', 'foot', 'leg', 'arm',
-      'suit', 't-shirt', 'jeans', 'sock', 'shoe', 'sneaker', 'boot', 'hat', 'cap', 'glasses',
+      // أشخاص وأجزاء الجسم
+      'person', 'people', 'man', 'woman', 'boy', 'girl', 'child', 'face', 'head', 'hand', 'foot', 'leg', 'arm', 'finger', 'body',
+      // ملابس وأقمشة
+      'suit', 't-shirt', 'shirt', 'jeans', 'jean', 'denim', 'trouser', 'trousers', 'pants', 'sock', 'socks', 'shoe', 'shoes',
+      'sneaker', 'boot', 'hat', 'cap', 'glasses', 'clothing', 'apparel', 'fabric', 'textile', 'cloth', 'garment',
       // أثاث ومنزل
-      'sofa', 'couch', 'bed', 'pillow', 'cushion', 'chair', 'table', 'desk', 'cabinet',
+      'sofa', 'couch', 'bed', 'pillow', 'cushion', 'chair', 'table', 'desk', 'cabinet', 'furniture',
       'rug', 'carpet', 'mat', 'curtain', 'drapes', 'blanket', 'quilt',
       'television', 'monitor', 'screen', 'laptop', 'computer', 'keyboard', 'mouse',
       'cellphone', 'telephone', 'remote', 'book', 'magazine',
       // طعام ومطبخ
       'cup', 'coffee mug', 'mug', 'plate', 'dish', 'bowl', 'spoon', 'fork', 'knife',
       'food', 'pizza', 'sandwich', 'bread', 'fruit', 'bottle', 'glass',
-      // حيوانات وأماكن داخلية
+      // أماكن داخلية وحيوانات
       'cat', 'dog', 'pet', 'room', 'indoor', 'living room', 'bedroom', 'kitchen', 'bathroom',
       'wall', 'ceiling', 'floor', 'door', 'window'
     ];
@@ -473,17 +475,19 @@
         await tempImg.decode();
 
         let isForbidden = false, forbiddenLabel = '', isMatchingCategory = false;
+        let topLabels = [];
         const validCategoryKeywords = AI_CATEGORY_PATTERNS[currentCategory] || [];
 
         if (aiModel) {
           try {
-            const predictions = await aiModel.classify(tempImg, 8);
-            
-            // 1. فحص الأشياء الممنوعة (أشخاص، منزل، ملابس...) بعتبة منخفضة
+            const predictions = await aiModel.classify(tempImg, 10);
+            topLabels = predictions.slice(0, 3).map(p => p.className);
+
+            // 1. رفض قوي لأي عنصر شخصي / منزلي / ملابس
             for (let pred of predictions) {
               const label = pred.className.toLowerCase();
               for (let forb of FORBIDDEN_OBJECTS) {
-                if (label.includes(forb) && pred.probability > 0.08) {
+                if (label.includes(forb) && pred.probability > 0.04) {
                   isForbidden = true;
                   forbiddenLabel = pred.className;
                   break;
@@ -492,12 +496,12 @@
               if (isForbidden) break;
             }
 
-            // 2. فحص مطابقة الفئة (يجب أن يظهر كلمة مفتاحية واحدة على الأقل)
+            // 2. يجب أن تطابق الصورة الفئة المختارة بوضوح
             if (!isForbidden && validCategoryKeywords.length > 0) {
               for (let pred of predictions) {
                 const label = pred.className.toLowerCase();
                 for (let validKw of validCategoryKeywords) {
-                  if (label.includes(validKw) && pred.probability > 0.05) {
+                  if (label.includes(validKw) && pred.probability > 0.18) {
                     isMatchingCategory = true;
                     break;
                   }
@@ -505,10 +509,13 @@
                 if (isMatchingCategory) break;
               }
             } else if (validCategoryKeywords.length === 0) {
-              // فئة "ملاحظات أخرى" تسمح بأي صورة غير ممنوعة
+              // فئة "ملاحظات أخرى" فقط
               isMatchingCategory = true;
             }
           } catch (aiErr) { console.warn(aiErr); }
+        } else {
+          // إذا الـ AI ما اشتغل، نرفض عشان ما نقبل أي صورة
+          isMatchingCategory = false;
         }
 
         scanningBox.style.display = 'none';
@@ -517,22 +524,23 @@
           capturedPhotoData = null;
           document.getElementById('report-img').value = '';
           rejectAlert.style.display = 'block';
-          rejectReason.innerText = `⛔ تم رصد عنصر منزلي/شخصي (${forbiddenLabel}). أنت اخترت فئة (${currentCategory})، يرجى تصوير العطل الفعلي في الشارع مباشرة.`;
-          badge.innerText = '⛔ الصورة مرفوضة (AI)';
+          rejectReason.innerText = `تم رصد عنصر منزلي/غير خدمي (${forbiddenLabel}). يمنع تصوير المأكولات أو المشروبات أو الأثاث أو الملابس؛ يرجى تصوير العطل الميداني في الشارع مباشرة.`;
+          badge.innerText = '⛔ الصورة مرفوضة بالـ AI';
           badge.className = 'text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded';
-        } else if (!isMatchingCategory && currentCategory !== 'ملاحظات أخرى' && aiModel) {
+        } else if (!isMatchingCategory && currentCategory !== 'ملاحظات أخرى') {
           capturedPhotoData = null;
           document.getElementById('report-img').value = '';
           rejectAlert.style.display = 'block';
-          rejectReason.innerText = `⚠️ الصورة لا تطابق فئة (${currentCategory})! يرجى توجيه الكاميرا إلى العطل المطلوب وتصويره مباشرة.`;
-          badge.innerText = '⚠️ غير مطابقة للفئة';
+          const seen = topLabels.length ? topLabels.join(' / ') : 'غير معروف';
+          rejectReason.innerText = `الصورة لا تطابق فئة (${currentCategory}). الذكاء الاصطناعي رأى: ${seen}. يرجى توجيه الكاميرا إلى العطل المطلوب (نفايات / إنارة / سيول...) وتصويره مباشرة.`;
+          badge.innerText = '⛔ الصورة مرفوضة بالـ AI';
           badge.className = 'text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded';
         } else {
           capturedPhotoData = dataUrl;
           document.getElementById('photo-preview-img').src = capturedPhotoData;
           previewContainer.style.display = 'block';
           rejectAlert.style.display = 'none';
-          badge.innerText = `✓ مطابقة ومعتمدة لفئة (${currentCategory})`;
+          badge.innerText = `✓ معتمدة لفئة (${currentCategory})`;
           badge.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded';
         }
         checkFormValidity();
