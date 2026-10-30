@@ -14,7 +14,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="سهل حوران" />
   
-  <!-- المكتبات السريعة عبر سيرفرات Cloudflare فائقة السرعة في الأردن -->
+  <!-- المكتبات السريعة عبر سيرفرات Cloudflare في الأردن -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -28,7 +28,6 @@
     }
     .swiss-code { font-family: 'Space Mono', monospace; }
     
-    /* ضبط مساحة الخريطة لتفتح فوراً */
     #map { 
       height: 260px !important; 
       min-height: 260px !important;
@@ -54,8 +53,8 @@
       font-weight: 900 !important;
     }
     body.low-vision-mode .cat-btn,
-    body.low-vision-mode .town-btn {
-      min-height: 60px !important;
+    body.low-vision-mode .town-badge {
+      min-height: 55px !important;
       font-size: 1.15rem !important;
       font-weight: 900 !important;
       border: 3px solid #000000 !important;
@@ -113,13 +112,13 @@
       <div class="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-sm">
         <div class="flex justify-between items-start mb-1">
           <span class="text-[10px] font-bold uppercase text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
-            النظام البلدي الذكي
+            النطاق الجغرافي الحصري
           </span>
           <span class="text-[10px] text-slate-400 font-mono">الرمثا • الأردن</span>
         </div>
         <h2 class="text-sm font-extrabold text-white mt-1">تسجيل بلاغ خدمي فوري</h2>
         <p class="text-[11px] text-slate-300 mt-0.5">
-          خدمة مناطق: الطرة • الشجرة • الذنيبة • عمراوة
+          مخصص حصرياً للمتواجدين داخل: الطرة • الشجرة • الذنيبة • عمراوة
         </p>
       </div>
 
@@ -139,29 +138,33 @@
           </div>
         </div>
 
-        <!-- 2. الموقع والخريطة -->
+        <!-- 2. الموقع الجغرافي المقفل بالـ GPS فقط -->
         <div>
           <div class="flex justify-between items-center mb-1.5">
-            <label class="text-xs font-bold text-slate-800">2. الموقع الجغرافي للخلل</label>
-            <button type="button" onclick="locateUser()" class="text-xs font-bold text-slate-950 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-300 flex items-center gap-1 active:scale-95 transition cursor-pointer">
-              <span>🎯 تحديث مكاني (GPS)</span>
+            <label class="text-xs font-bold text-slate-800">2. موقعك الفعلي (مقفل بالـ GPS)</label>
+            <button type="button" onclick="locateUser(true)" class="text-xs font-bold text-slate-950 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-300 flex items-center gap-1 active:scale-95 transition cursor-pointer">
+              <span>🎯 تثبيت موقعي الآن</span>
             </button>
           </div>
 
-          <!-- أزرار البلدات السريعة -->
-          <div class="grid grid-cols-4 gap-1.5 mb-2">
-            <button type="button" id="town-الطرة" onclick="manualFocusTown('الطرة', 32.6120, 35.9910)" class="town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-950 text-white active:scale-95 cursor-pointer">الطرة</button>
-            <button type="button" id="town-الشجرة" onclick="manualFocusTown('الشجرة', 32.6515, 35.9420)" class="town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-100 text-slate-700 active:scale-95 cursor-pointer">الشجرة</button>
-            <button type="button" id="town-الذنيبة" onclick="manualFocusTown('الذنيبة', 32.6780, 35.9210)" class="town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-100 text-slate-700 active:scale-95 cursor-pointer">الذنيبة</button>
-            <button type="button" id="town-عمراوة" onclick="manualFocusTown('عمراوة', 32.6840, 35.8850)" class="town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-100 text-slate-700 active:scale-95 cursor-pointer">عمراوة</button>
+          <!-- شارات توضح البلدة المكتشفة تلقائياً فقط (غير قابلة للاختيار اليدوي) -->
+          <div class="grid grid-cols-4 gap-1.5 mb-2 pointer-events-none">
+            <div id="badge-الطرة" class="town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-100 text-slate-400">الطرة</div>
+            <div id="badge-الشجرة" class="town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-100 text-slate-400">الشجرة</div>
+            <div id="badge-الذنيبة" class="town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-100 text-slate-400">الذنيبة</div>
+            <div id="badge-عمراوة" class="town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-100 text-slate-400">عمراوة</div>
           </div>
 
-          <!-- حاوية الخريطة -->
+          <!-- حاوية الخريطة (مقفل عليها اللمس اليدوي، تعتمد على موقع الـ GPS فقط) -->
           <div id="map"></div>
 
-          <div class="mt-2 p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center text-xs">
-            <span id="geo-info" class="font-bold text-slate-800">📍 الموقع المثبت: الطرة</span>
-            <span id="geo-accuracy" class="text-[10px] font-mono text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded font-bold">جاهز</span>
+          <!-- صندوق حالة التحقق الجغرافي والرفض/القبول -->
+          <div id="geo-status-box" class="mt-2.5 p-3 rounded-xl border text-xs flex items-center justify-between transition-all bg-slate-50 border-slate-200">
+            <div>
+              <p id="geo-info" class="font-extrabold text-slate-800">📡 اضغط "تثبيت موقعي الآن" للتحقق من تواجدك</p>
+              <p id="geo-subinfo" class="text-[10px] text-slate-500 mt-0.5">النظام يتحقق من مطابقة إحداثياتك لبلدات سهل حوران</p>
+            </div>
+            <span id="geo-badge" class="text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-slate-200 text-slate-700">بانتظار GPS</span>
           </div>
         </div>
 
@@ -173,7 +176,8 @@
           <textarea id="report-desc" rows="2" placeholder="اكتب تفاصيل إضافية أو أقرب معلم واضح..." class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-slate-900 outline-none"></textarea>
         </div>
 
-        <button type="button" onclick="submitReport()" class="w-full py-3 bg-slate-950 hover:bg-slate-900 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer">
+        <!-- زر الإرسال (يتعطل تلقائياً في حال كان المستخدم خارج سهل حوران) -->
+        <button type="button" id="submit-btn" onclick="submitReport()" class="w-full py-3 bg-slate-950 hover:bg-slate-900 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-400">
           إرسال البلاغ والحصول على رقم التتبع
         </button>
       </div>
@@ -234,7 +238,7 @@
           type="text" 
           id="admin-search-input" 
           oninput="renderAdminReports()" 
-          placeholder="🔍 بحث سريع برقم البلاغ..." 
+          placeholder="🔍 بحث برقم البلاغ..." 
           class="w-full text-xs p-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:border-slate-950 font-bold"
         />
 
@@ -342,6 +346,7 @@
     const ADMIN_CREDENTIALS = { user: 'admin', pass: 'sahl2026' };
     const SESSION_DURATION_MS = 5 * 60 * 1000;
 
+    // إحداثيات بلدات سهل حوران
     const TOWNS = [
       { name: 'الطرة', lat: 32.6120, lng: 35.9910 },
       { name: 'الشجرة', lat: 32.6515, lng: 35.9420 },
@@ -349,11 +354,19 @@
       { name: 'عمراوة', lat: 32.6840, lng: 35.8850 }
     ];
 
-    const SAHL_BBOX = { minLat: 32.5600, maxLat: 32.7300, minLng: 35.8400, maxLng: 36.0600 };
+    // الحدود الجغرافية الدقيقة المعتمدة لسهل حوران (لواء الرمثا)
+    const SAHL_BBOX = { 
+      minLat: 32.5700, 
+      maxLat: 32.7250, 
+      minLng: 35.8500, 
+      maxLng: 36.0500 
+    };
+
     let currentCategory = 'تراكم النفايات';
-    let currentTown = 'الطرة';
-    let selectedLat = 32.6120;
-    let selectedLng = 35.9910;
+    let currentTown = '';
+    let selectedLat = null;
+    let selectedLng = null;
+    let isLocationVerified = false; // هل المستخدم متواجد فعلياً داخل سهل حوران؟
     let currentFilterTown = 'all';
     let map = null, marker = null, accuracyCircle = null;
 
@@ -370,44 +383,38 @@
       }
     ];
 
-    // تشغيل التطبيق فور اكتمال المستند
     window.addEventListener('DOMContentLoaded', () => {
-      // فحص خيار النظر المخزن
       const savedMode = localStorage.getItem('sahl_vision_mode');
       if (savedMode === 'low-vision') applyVisionMode('low-vision');
 
-      // تهيئة الخريطة فوراً
       initMapSafely();
       renderAdminReports();
       setInterval(checkSessionExpiryLoop, 1000);
+      
+      // طلب الموقع وتثبيته فور فتح التطبيق
+      locateUser(false);
     });
 
     function initMapSafely() {
       try {
-        if (typeof L === 'undefined') {
-          console.error('Leaflet not loaded yet');
-          return;
-        }
+        if (typeof L === 'undefined') return;
 
-        map = L.map('map', { zoomControl: false }).setView([selectedLat, selectedLng], 14);
+        // قفل الخريطة: إلغاء إمكانية اللمس والنقر العشوائي لمنع تحديد أماكن كاذبة
+        map = L.map('map', { 
+          zoomControl: false,
+          dragging: false, // لا يسمح بسحب الخريطة
+          touchZoom: false,
+          scrollWheelZoom: false,
+          doubleClickZoom: false
+        }).setView([32.6450, 35.9500], 13);
         
-        // سيرفر الخرائط المفتوح السريع
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19
         }).addTo(map);
 
-        marker = L.marker([selectedLat, selectedLng], { draggable: true }).addTo(map);
+        // إنشاء الدبوس بدون إمكانية سحبه (مقفل تماماً)
+        marker = L.marker([32.6450, 35.9500], { draggable: false }).addTo(map);
 
-        marker.on('dragend', function(e) {
-          const pos = e.target.getLatLng();
-          updateLocationData(pos.lat, pos.lng, 'تعديل يدوي');
-        });
-
-        map.on('click', function(e) {
-          updateLocationData(e.latlng.lat, e.latlng.lng, 'تحديد باللمس');
-        });
-
-        // تنشيط وتوسيع حجم الخريطة لتجنب اللون الأبيض
         setTimeout(() => { if (map) map.invalidateSize(); }, 300);
         setTimeout(() => { if (map) map.invalidateSize(); }, 1000);
       } catch (e) {
@@ -415,55 +422,25 @@
       }
     }
 
-    function openExitModal() {
-      document.getElementById('exit-modal').style.display = 'flex';
-    }
-    function closeExitModal() {
-      document.getElementById('exit-modal').style.display = 'none';
-    }
-    function confirmExitApp() {
-      closeExitModal();
-      document.body.innerHTML = `
-        <div class="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center" dir="rtl">
-          <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-3 shadow-lg">✓</div>
-          <h2 class="text-base font-extrabold mb-1">شكراً لزيارتك بوابة سهل حوران</h2>
-          <p class="text-xs text-slate-400 mb-5">تم إنهاء الجلسة بنجاح، يمكنك إغلاق التطبيق الآن.</p>
-          <button onclick="location.reload()" class="px-5 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold border border-slate-700 cursor-pointer">العودة للتطبيق</button>
-        </div>
-      `;
-    }
-
-    function openVisionModal() {
-      document.getElementById('vision-modal').style.display = 'flex';
-    }
-    function closeVisionModal() {
-      document.getElementById('vision-modal').style.display = 'none';
-    }
-    function applyVisionMode(mode) {
-      const body = document.getElementById('app-body');
-      if (mode === 'low-vision') {
-        body.classList.add('low-vision-mode');
-        localStorage.setItem('sahl_vision_mode', 'low-vision');
-      } else {
-        body.classList.remove('low-vision-mode');
-        localStorage.setItem('sahl_vision_mode', 'normal');
-      }
-      closeVisionModal();
-      if (map) setTimeout(() => map.invalidateSize(), 200);
-    }
-
-    // تحديث موقع الـ GPS السريع
-    function locateUser() {
+    // ==========================================
+    // فحص الـ GPS الصارم والحظر خارج سهل حوران
+    // ==========================================
+    function locateUser(isManualClick) {
       const infoEl = document.getElementById('geo-info');
-      const accEl = document.getElementById('geo-accuracy');
+      const subInfoEl = document.getElementById('geo-subinfo');
+      const badgeEl = document.getElementById('geo-badge');
+      const statusBox = document.getElementById('geo-status-box');
+      const submitBtn = document.getElementById('submit-btn');
 
       if (!navigator.geolocation) {
-        alert('خدمة الـ GPS غير مدعومة على متصفحك');
+        if (isManualClick) alert('خدمة تحديد المواقع (GPS) غير مدعومة على متصفحك');
         return;
       }
 
-      infoEl.innerText = '📡 جاري البحث عن الأقمار الصناعية...';
-      accEl.innerText = 'فحص...';
+      infoEl.innerText = '📡 جاري فحص ومطابقة موقعك بالأقمار الصناعية...';
+      subInfoEl.innerText = 'يتم التحقق من النطاق الجغرافي لبلدية سهل حوران';
+      badgeEl.innerText = 'جاري الفحص...';
+      badgeEl.className = 'text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-amber-100 text-amber-800';
 
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -471,43 +448,85 @@
           const lng = pos.coords.longitude;
           const accuracy = Math.round(pos.coords.accuracy);
 
-          if (lat >= SAHL_BBOX.minLat && lat <= SAHL_BBOX.maxLat && lng >= SAHL_BBOX.minLng && lng <= SAHL_BBOX.maxLng) {
-            updateLocationData(lat, lng, `دقة ±${accuracy}م`);
-            if (map) {
+          // 1. فحص هل المستخدم داخل النطاق الجغرافي لسهل حوران؟
+          const isInside = (
+            lat >= SAHL_BBOX.minLat && 
+            lat <= SAHL_BBOX.maxLat && 
+            lng >= SAHL_BBOX.minLng && 
+            lng <= SAHL_BBOX.maxLng
+          );
+
+          if (isInside) {
+            // ✅ قبول الموقع
+            isLocationVerified = true;
+            selectedLat = lat;
+            selectedLng = lng;
+
+            // تحديد البلدة التابعة تلقائياً
+            const detectedTown = getNearestTown(lat, lng);
+            currentTown = detectedTown;
+            highlightTownBadge(detectedTown);
+
+            // تحريك الخريطة للموقع الحقيقي
+            if (map && marker) {
+              marker.setLatLng([lat, lng]);
               map.setView([lat, lng], 16);
+
               if (accuracyCircle) map.removeLayer(accuracyCircle);
               accuracyCircle = L.circle([lat, lng], {
                 radius: accuracy,
-                color: '#090a0f',
+                color: '#059669',
                 fillColor: '#10b981',
                 fillOpacity: 0.15
               }).addTo(map);
             }
+
+            // تحديث رسائل القبول وتفعيل الإرسال
+            infoEl.innerText = `✅ موقع موثّق: أنت متواجد في منطقة (${detectedTown})`;
+            subInfoEl.innerText = `الإحداثيات: ${lat.toFixed(4)}, ${lng.toFixed(4)} (دقة ±${accuracy}م)`;
+            badgeEl.innerText = 'نطاق معتمد ✓';
+            badgeEl.className = 'text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800';
+            statusBox.className = 'mt-2.5 p-3 rounded-xl border text-xs flex items-center justify-between transition-all bg-emerald-50 border-emerald-300';
+            
+            // تفعيل زر الإرسال
+            submitBtn.disabled = false;
+            submitBtn.innerText = `إرسال البلاغ إلى بلدية سهل حوران (${detectedTown})`;
+
           } else {
-            updateLocationData(lat, lng, `خارج النطاق`);
-            if (map) map.setView([lat, lng], 14);
+            // ⛔ رفض الموقع نهائياً لكونه خارج سهل حوران
+            isLocationVerified = false;
+            selectedLat = null;
+            selectedLng = null;
+            currentTown = '';
+            resetTownBadges();
+
+            infoEl.innerText = '⛔ مرفوض: موقعك الحالي خارج حدود سهل حوران';
+            subInfoEl.innerText = 'هذا التطبيق مخصص حصرياً لمناطق: الطرة، الشجرة، الذنيبة، وعمراوة';
+            badgeEl.innerText = 'مرفوض ✕';
+            badgeEl.className = 'text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-rose-100 text-rose-800';
+            statusBox.className = 'mt-2.5 p-3 rounded-xl border text-xs flex items-center justify-between transition-all bg-rose-50 border-rose-300';
+
+            // تعطيل زر الإرسال بالكامل
+            submitBtn.disabled = true;
+            submitBtn.innerText = '⛔ لا يمكن الإرسال (أنت خارج سهل حوران)';
+
+            if (isManualClick) {
+              alert('تم رفض العملية: تم رصد موقعك خارج النطاق الجغرافي لبلدية سهل حوران. التطبيق يعمل فقط داخل بلدات الطرة، الشجرة، الذنيبة، وعمراوة.');
+            }
           }
         },
         (err) => {
-          infoEl.innerText = `📍 الموقع الحالي: ${currentTown}`;
-          accEl.innerText = 'يدوي';
-          alert('تعذر جلب موقعك بالـ GPS، يمكنك لمس الخريطة مباشرة لتحديد مكان المشكلة.');
+          isLocationVerified = false;
+          submitBtn.disabled = true;
+          submitBtn.innerText = '⛔ بانتظار تفعيل إذن الموقع (GPS)';
+          infoEl.innerText = '⚠️ يرجى تفعيل إذن الموقع الجغرافي (GPS)';
+          subInfoEl.innerText = 'يجب تفعيل GPS للتحقق من تواجدك داخل حدود البلدية';
+          badgeEl.innerText = 'GPS مغلق';
+          badgeEl.className = 'text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-amber-100 text-amber-800';
+          if (isManualClick) alert('يرجى تفعيل الـ GPS وإعطاء الإذن للمتصفح للتحقق من موقعك.');
         },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 7000, maximumAge: 0 }
       );
-    }
-
-    function updateLocationData(lat, lng, note) {
-      selectedLat = lat;
-      selectedLng = lng;
-      if (marker) marker.setLatLng([lat, lng]);
-
-      const nearestTown = getNearestTown(lat, lng);
-      currentTown = nearestTown;
-      highlightTownButton(nearestTown);
-
-      document.getElementById('geo-info').innerText = `📍 ${nearestTown} (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
-      document.getElementById('geo-accuracy').innerText = note;
     }
 
     function getNearestTown(lat, lng) {
@@ -524,22 +543,24 @@
       return closest.name;
     }
 
-    function highlightTownButton(name) {
-      document.querySelectorAll('.town-btn').forEach(b => {
-        if (b.innerText === name) {
-          b.className = 'town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-950 text-white active:scale-95 cursor-pointer';
-        } else {
-          b.className = 'town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-100 text-slate-700 active:scale-95 cursor-pointer';
+    function highlightTownBadge(name) {
+      TOWNS.forEach(t => {
+        const badge = document.getElementById(`badge-${t.name}`);
+        if (badge) {
+          if (t.name === name) {
+            badge.className = 'town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-950 text-white shadow-xs';
+          } else {
+            badge.className = 'town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-100 text-slate-400';
+          }
         }
       });
     }
 
-    function manualFocusTown(name, lat, lng) {
-      updateLocationData(lat, lng, 'اختيار يدوي');
-      if (map) {
-        map.setView([lat, lng], 15);
-        map.invalidateSize();
-      }
+    function resetTownBadges() {
+      TOWNS.forEach(t => {
+        const badge = document.getElementById(`badge-${t.name}`);
+        if (badge) badge.className = 'town-badge py-1.5 text-center text-xs font-bold border rounded-lg bg-slate-100 text-slate-400';
+      });
     }
 
     function setCategory(btn, cat) {
@@ -551,7 +572,13 @@
     }
 
     function submitReport() {
-      const desc = document.getElementById('report-desc').value.trim() || 'بلاغ مسجل عبر البوابة';
+      // تحقق أمني إضافي قبل الإرسال
+      if (!isLocationVerified || !selectedLat || !selectedLng) {
+        alert('لا يمكن إرسال البلاغ: موقعك يقع خارج حدود بلدية سهل حوران (الطرة، الشجرة، الذنيبة، عمراوة).');
+        return;
+      }
+
+      const desc = document.getElementById('report-desc').value.trim() || 'بلاغ معتمد ومثبت جغرافياً';
       const code = 'CH-SH-' + Math.floor(1000 + Math.random() * 9000);
 
       reports.unshift({
@@ -571,7 +598,7 @@
     }
 
     // ==========================================
-    // إدارة الجلسات والأمان (5 دقائق)
+    // لوحة الإدارة والأمان
     // ==========================================
     function isAdminSessionActive() {
       const session = localStorage.getItem('sahl_admin_session_expiry');
@@ -747,6 +774,35 @@
         document.getElementById('btn-admin').className = 'px-3 py-1 text-xs font-bold rounded-lg bg-slate-950 text-white shadow-xs transition active:scale-95 flex items-center gap-1 cursor-pointer';
         document.getElementById('btn-citizen').className = 'px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-950 transition active:scale-95 cursor-pointer';
       }
+    }
+
+    function openVisionModal() { document.getElementById('vision-modal').style.display = 'flex'; }
+    function closeVisionModal() { document.getElementById('vision-modal').style.display = 'none'; }
+    function applyVisionMode(mode) {
+      const body = document.getElementById('app-body');
+      if (mode === 'low-vision') {
+        body.classList.add('low-vision-mode');
+        localStorage.setItem('sahl_vision_mode', 'low-vision');
+      } else {
+        body.classList.remove('low-vision-mode');
+        localStorage.setItem('sahl_vision_mode', 'normal');
+      }
+      closeVisionModal();
+      if (map) setTimeout(() => map.invalidateSize(), 200);
+    }
+
+    function openExitModal() { document.getElementById('exit-modal').style.display = 'flex'; }
+    function closeExitModal() { document.getElementById('exit-modal').style.display = 'none'; }
+    function confirmExitApp() {
+      closeExitModal();
+      document.body.innerHTML = `
+        <div class="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center" dir="rtl">
+          <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-3 shadow-lg">✓</div>
+          <h2 class="text-base font-extrabold mb-1">شكراً لزيارتك بوابة سهل حوران</h2>
+          <p class="text-xs text-slate-400 mb-5">تم إنهاء الجلسة بنجاح، يمكنك إغلاق التطبيق الآن.</p>
+          <button onclick="location.reload()" class="px-5 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold border border-slate-700 cursor-pointer">العودة للتطبيق</button>
+        </div>
+      `;
     }
   </script>
 </body>
