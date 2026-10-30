@@ -14,10 +14,11 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="سهل حوران" />
   
-  <!-- المكتبات السريعة عبر Cloudflare CDN -->
+  <!-- المكتبات السريعة ومكتبة Supabase السحابية -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet" />
 
   <style>
@@ -83,7 +84,7 @@
             <h1 class="font-extrabold text-sm text-slate-950">بلدية سهل حوران</h1>
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
           </div>
-          <p class="text-[10px] text-slate-500 font-bold">بوابة العمليات الميدانية</p>
+          <p class="text-[10px] text-slate-500 font-bold">بوابة العمليات الميدانية السحابية</p>
         </div>
       </div>
       
@@ -114,13 +115,13 @@
       <div class="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-sm">
         <div class="flex justify-between items-start mb-1">
           <span class="text-[10px] font-bold uppercase text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
-            النظام الموثق بالدليل
+            النظام الموثق بالسيرفر السحابي
           </span>
           <span class="text-[10px] text-slate-400 font-mono">الرمثا • الأردن</span>
         </div>
         <h2 class="text-sm font-extrabold text-white mt-1">تسجيل بلاغ خدمي فوري</h2>
         <p class="text-[11px] text-slate-300 mt-0.5">
-          يشترط: الكاميرا الحية • GPS الميداني • مطابقة وصف العطل
+          مربوط سحابياً مع غرفة طوارئ بلدية سهل حوران (الطرة، الشجرة، الذنيبة، عمراوة)
         </p>
       </div>
 
@@ -167,7 +168,7 @@
           </div>
         </div>
 
-        <!-- 3. تصوير الكاميرا الإلزامي والتحقق الذكي من الوصف -->
+        <!-- 3. تصوير الكاميرا الإلزامي ووصف المشكلة -->
         <div class="space-y-3">
           <div>
             <div class="flex justify-between items-center mb-1.5">
@@ -175,7 +176,6 @@
               <span id="photo-status-badge" class="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">مطلوب التصوير</span>
             </div>
 
-            <!-- إجبار الكاميرا الحية -->
             <input type="file" accept="image/*" capture="environment" id="report-img" onchange="handleImageCapture(this)" class="hidden" />
             
             <button type="button" onclick="document.getElementById('report-img').click()" class="w-full py-3.5 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center gap-1.5 active:scale-98 transition cursor-pointer">
@@ -184,7 +184,6 @@
               <span class="text-[10px] text-slate-500">يشترط التقاط صورة فورية للعطل في مكانه</span>
             </button>
 
-            <!-- معاينة الصورة -->
             <div id="photo-preview-container" style="display: none;" class="mt-2 relative rounded-2xl overflow-hidden border border-slate-300">
               <img id="photo-preview-img" src="" alt="صورة العطل" class="w-full h-44 object-cover" />
               <div class="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur-xs text-white text-[10px] px-2.5 py-1 rounded-lg font-bold flex items-center gap-1">
@@ -231,8 +230,8 @@
 
       <!-- بطاقة التأكيد -->
       <div id="success-box" style="display: none;" class="bg-emerald-50 border border-emerald-300 p-4 rounded-2xl text-center space-y-2">
-        <span class="inline-block px-2 py-0.5 bg-emerald-200 text-emerald-950 font-bold text-[10px] rounded">تم استلام البلاغ الموثق</span>
-        <h3 class="text-xs font-bold text-slate-900">رقم البلاغ المرجعي المعتمد:</h3>
+        <span class="inline-block px-2 py-0.5 bg-emerald-200 text-emerald-950 font-bold text-[10px] rounded">تم الحفظ في السيرفر بنجاح</span>
+        <h3 class="text-xs font-bold text-slate-900">رقم البلاغ السحابي المعتمد:</h3>
         <div class="bg-white py-1.5 px-4 rounded-lg border border-slate-300 inline-block swiss-code font-bold text-base text-slate-950" id="ticket-number">
           CH-SH-0000
         </div>
@@ -246,10 +245,10 @@
         <div class="flex justify-between items-center pb-2.5 border-b border-slate-100">
           <div>
             <div class="flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <h2 class="text-xs font-extrabold text-slate-950 uppercase">غرفة التحكم البلدية</h2>
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <h2 class="text-xs font-extrabold text-slate-950 uppercase">غرفة التحكم السحابية</h2>
             </div>
-            <p class="text-[10px] text-slate-400 font-bold mt-0.5">مراقبة ومعالجة بلاغات سهل حوران</p>
+            <p class="text-[10px] text-slate-400 font-bold mt-0.5">مراقبة حية لبلاغات سهل حوران</p>
           </div>
 
           <div class="flex items-center gap-2">
@@ -428,7 +427,7 @@
           🛡️
         </div>
         <h3 class="font-extrabold text-slate-950 text-sm">تسجيل دخول المشرف</h3>
-        <p class="text-[10px] text-slate-500">جلسة مؤمّنة تدوم 5 دقائق</p>
+        <p class="text-[10px] text-slate-500">جلسة سحابية مؤمّنة تدوم 5 دقائق</p>
       </div>
 
       <div class="space-y-2">
@@ -455,6 +454,13 @@
   </div>
 
   <script>
+    // ==========================================
+    // تهيئة الاتصال السحابي الحقيقي مع Supabase
+    // ==========================================
+    const SUPABASE_URL = 'https://mkstvimsqoqjgkrdrczd.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_r-A0TOsrkQ-gvcCIYdZAUg_cL07Ra5c';
+    const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
     const ADMIN_CREDENTIALS = { user: 'admin', pass: 'sahl2026' };
     const SESSION_DURATION_MS = 5 * 60 * 1000;
 
@@ -472,7 +478,6 @@
       maxLng: 36.0500 
     };
 
-    // قاموس الكلمات المفتاحية للتحقق الذكي من تطابق الوصف مع الفئة
     const CATEGORY_KEYWORDS = {
       'تراكم النفايات': ['نفايات', 'قمامة', 'حاوية', 'حاويات', 'زبالة', 'نظافة', 'أوساخ', 'مكب', 'تراكم'],
       'هبوطات وتلف الطرق': ['شارع', 'طريق', 'حفرة', 'هبوط', 'تزفيت', 'زفتة', 'مطبات', 'تلف', 'تشقق'],
@@ -493,16 +498,15 @@
     let detailMap = null, detailMarker = null;
 
     const STEPS = ['تم الاستلام', 'المراجعة الفنية', 'الفريق الميداني', 'تم الإنجاز'];
+    let reports = [];
 
-    // مصفوفة البلاغات تبدأ نظيفة من أي بيانات تجريبية وهمية
-    let reports = JSON.parse(localStorage.getItem('sahl_live_reports') || '[]');
-
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', async () => {
       const savedMode = localStorage.getItem('sahl_vision_mode');
       if (savedMode === 'low-vision') applyVisionMode('low-vision');
 
       initMapSafely();
-      renderAdminReports();
+      await fetchReportsFromCloud();
+      subscribeToLiveCloudUpdates();
       setInterval(checkSessionExpiryLoop, 1000);
       locateUser(false);
     });
@@ -527,6 +531,45 @@
       } catch (e) {
         console.error('Error init map:', e);
       }
+    }
+
+    // جلب البلاغات من السيرفر السحابي
+    async function fetchReportsFromCloud() {
+      if (!supabaseClient) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from('reports')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!error && data) {
+          reports = data.map(r => ({
+            id: r.id,
+            category: r.category,
+            town: r.town,
+            lat: r.lat,
+            lng: r.lng,
+            desc: r.description,
+            photo: r.photo,
+            stepIndex: r.step_index || 0,
+            time: new Date(r.created_at).toLocaleTimeString('ar-JO', { hour: '2-digit', minute: '2-digit' })
+          }));
+          renderAdminReports();
+        }
+      } catch (err) {
+        console.error('Error fetching reports:', err);
+      }
+    }
+
+    // التزامن اللحظي المباشر (Realtime)
+    function subscribeToLiveCloudUpdates() {
+      if (!supabaseClient) return;
+      supabaseClient
+        .channel('public:reports')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'reports' }, () => {
+          fetchReportsFromCloud();
+        })
+        .subscribe();
     }
 
     function handleImageCapture(input) {
@@ -560,9 +603,6 @@
       checkFormValidity();
     }
 
-    // ==========================================
-    // محرك الفحص الذكي: التحقق من تطابق الوصف مع الفئة
-    // ==========================================
     function checkFormValidity() {
       const desc = (document.getElementById('report-desc')?.value || '').trim();
       const descBadge = document.getElementById('desc-status-badge');
@@ -578,7 +618,6 @@
         descErrHint.classList.add('hidden');
         document.getElementById('req-desc').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">كتابة وصف العطل (5 أحرف على الأقل)</span>`;
       } else {
-        // التحقق من أن النص يحتوي على كلمات تدل على المشكلة أو فئتها
         const matchesCategory = expectedWords.length === 0 || expectedWords.some(w => desc.includes(w));
         
         if (matchesCategory) {
@@ -597,7 +636,6 @@
         }
       }
 
-      // فحص متطلب الصورة
       const hasPhoto = !!capturedPhotoData;
       if (hasPhoto) {
         document.getElementById('req-photo').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">تم التقاط الصورة بالكاميرا بنجاح</span>`;
@@ -605,7 +643,6 @@
         document.getElementById('req-photo').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">تصوير المشكلة مباشرة بالكاميرا</span>`;
       }
 
-      // فحص متطلب الموقع
       const hasLocation = isLocationVerified;
       if (hasLocation) {
         document.getElementById('req-loc').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">تم تثبيت الموقع الفعلي في (${currentTown})</span>`;
@@ -613,7 +650,6 @@
         document.getElementById('req-loc').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">تثبيت الموقع الجغرافي داخل سهل حوران</span>`;
       }
 
-      // تفعيل زر الإرسال عند استيفاء الشروط الثلاثة بالكامل
       if (hasLocation && hasPhoto && isDescValid) {
         submitBtn.disabled = false;
         submitBtn.className = 'w-full py-3.5 bg-slate-950 hover:bg-slate-900 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer';
@@ -759,7 +795,8 @@
       checkFormValidity();
     }
 
-    function submitReport() {
+    // إرسال البلاغ إلى السيرفر السحابي Supabase
+    async function submitReport() {
       const desc = (document.getElementById('report-desc')?.value || '').trim();
 
       if (!isLocationVerified || !selectedLat || !selectedLng) {
@@ -775,35 +812,45 @@
         return;
       }
 
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'جاري الحفظ في السيرفر السحابي...';
+
       const code = 'CH-SH-' + Math.floor(1000 + Math.random() * 9000);
 
-      // حفظ الإحداثيات والصورة والوصف الفعلي بدقة 100%
-      const newReport = {
-        id: code,
-        category: currentCategory,
-        town: currentTown,
-        lat: selectedLat,
-        lng: selectedLng,
-        desc: desc,
-        photo: capturedPhotoData,
-        stepIndex: 0,
-        time: 'الآن'
-      };
+      try {
+        if (supabaseClient) {
+          const { error } = await supabaseClient.from('reports').insert([{
+            id: code,
+            category: currentCategory,
+            town: currentTown,
+            lat: selectedLat,
+            lng: selectedLng,
+            description: desc,
+            photo: capturedPhotoData,
+            step_index: 0
+          }]);
 
-      reports.unshift(newReport);
-      localStorage.setItem('sahl_live_reports', JSON.stringify(reports));
+          if (error) throw error;
+        }
 
-      document.getElementById('ticket-number').innerText = code;
-      document.getElementById('success-box').style.display = 'block';
-      
-      document.getElementById('report-desc').value = '';
-      removeCapturedPhoto();
-      renderAdminReports();
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        document.getElementById('ticket-number').innerText = code;
+        document.getElementById('success-box').style.display = 'block';
+        
+        document.getElementById('report-desc').value = '';
+        removeCapturedPhoto();
+        await fetchReportsFromCloud();
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      } catch (err) {
+        console.error('Error submitting report:', err);
+        alert('تعذر حفظ البلاغ على السيرفر، يرجى التأكد من تشغيل كود SQL وتفعيل الإنترنت.');
+      } finally {
+        checkFormValidity();
+      }
     }
 
     // ==========================================
-    // لوحة الإدارة، التفاصيل المطابقة، ومسح البلاغات
+    // لوحة الإدارة
     // ==========================================
     function isAdminSessionActive() {
       const session = localStorage.getItem('sahl_admin_session_expiry');
@@ -854,6 +901,7 @@
         switchView('admin');
         document.getElementById('admin-user').value = '';
         document.getElementById('admin-pass').value = '';
+        fetchReportsFromCloud();
       } else {
         document.getElementById('login-err').classList.remove('hidden');
       }
@@ -898,9 +946,9 @@
       if (list.length === 0) {
         container.innerHTML = `
           <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-400">
-            <span class="text-3xl block mb-2">📋</span>
-            <p class="text-xs font-bold text-slate-600">لا توجد بلاغات مسجلة حالياً</p>
-            <p class="text-[10px] text-slate-400 mt-1">أي بلاغ يرسله المواطن سيظهر هنا مباشرة مع الصورة والموقع الدقيق</p>
+            <span class="text-3xl block mb-2">☁️</span>
+            <p class="text-xs font-bold text-slate-600">لا توجد بلاغات على السيرفر حالياً</p>
+            <p class="text-[10px] text-slate-400 mt-1">أي بلاغ يرسله المواطنون سيصل إلى شاشتك مباشرة في نفس الثانية</p>
           </div>
         `;
         return;
@@ -956,9 +1004,6 @@
       });
     }
 
-    // ==========================================
-    // فتح وعرض تفاصيل البلاغ مع مطابقة الموقع 100%
-    // ==========================================
     function openReportDetails(id) {
       const rep = reports.find(r => r.id === id);
       if (!rep) return;
@@ -977,7 +1022,6 @@
         photoWrap.style.display = 'none';
       }
 
-      // مطابقة إحداثيات المشرف 100% مع هاتف المواطن
       const lat = rep.lat;
       const lng = rep.lng;
       document.getElementById('modal-coords').innerText = `الإحداثيات الحقيقية: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
@@ -988,8 +1032,7 @@
         advBtn.style.display = 'block';
         advBtn.innerText = `ترقية إلى (${STEPS[rep.stepIndex + 1]}) ➔`;
         advBtn.onclick = function() {
-          advanceReportStep(rep.id);
-          openReportDetails(rep.id);
+          advanceReportStep(rep.id, rep.stepIndex);
         };
       } else {
         advBtn.style.display = 'none';
@@ -1002,7 +1045,6 @@
 
       document.getElementById('detail-modal').style.display = 'flex';
 
-      // رسم خريطة مطابقة 1:1 لموقع المشكلة
       setTimeout(() => {
         try {
           if (!detailMap) {
@@ -1024,67 +1066,27 @@
       document.getElementById('detail-modal').style.display = 'none';
     }
 
-    function deleteReport(id) {
-      if (confirm(`هل أنت متأكد من مسح وحذف البلاغ (${id}) نهائياً من سجلات البلدية؟`)) {
-        reports = reports.filter(r => r.id !== id);
-        localStorage.setItem('sahl_live_reports', JSON.stringify(reports));
-        closeDetailModal();
-        renderAdminReports();
+    // حذف البلاغ من السيرفر السحابي
+    async function deleteReport(id) {
+      if (confirm(`هل أنت متأكد من مسح وحذف البلاغ (${id}) نهائياً من السيرفر السحابي؟`)) {
+        try {
+          if (supabaseClient) {
+            await supabaseClient.from('reports').delete().eq('id', id);
+          }
+          closeDetailModal();
+          await fetchReportsFromCloud();
+        } catch (err) {
+          alert('حدث خطأ أثناء الحذف من السيرفر');
+        }
       }
     }
 
-    function advanceReportStep(id) {
-      const rep = reports.find(r => r.id === id);
-      if (rep && rep.stepIndex < 3) {
-        rep.stepIndex++;
-        localStorage.setItem('sahl_live_reports', JSON.stringify(reports));
-        renderAdminReports();
-      }
-    }
-
-    function switchView(view) {
-      if (view === 'citizen') {
-        document.getElementById('view-citizen').style.display = 'block';
-        document.getElementById('view-admin').style.display = 'none';
-        document.getElementById('btn-citizen').className = 'px-3 py-1 text-xs font-bold rounded-lg bg-slate-950 text-white shadow-xs transition active:scale-95 cursor-pointer';
-        document.getElementById('btn-admin').className = 'px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-950 transition active:scale-95 flex items-center gap-1 cursor-pointer';
-        if (map) setTimeout(() => map.invalidateSize(), 150);
-      } else {
-        document.getElementById('view-citizen').style.display = 'none';
-        document.getElementById('view-admin').style.display = 'block';
-        document.getElementById('btn-admin').className = 'px-3 py-1 text-xs font-bold rounded-lg bg-slate-950 text-white shadow-xs transition active:scale-95 flex items-center gap-1 cursor-pointer';
-        document.getElementById('btn-citizen').className = 'px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-950 transition active:scale-95 cursor-pointer';
-      }
-    }
-
-    function openVisionModal() { document.getElementById('vision-modal').style.display = 'flex'; }
-    function closeVisionModal() { document.getElementById('vision-modal').style.display = 'none'; }
-    function applyVisionMode(mode) {
-      const body = document.getElementById('app-body');
-      if (mode === 'low-vision') {
-        body.classList.add('low-vision-mode');
-        localStorage.setItem('sahl_vision_mode', 'low-vision');
-      } else {
-        body.classList.remove('low-vision-mode');
-        localStorage.setItem('sahl_vision_mode', 'normal');
-      }
-      closeVisionModal();
-      if (map) setTimeout(() => map.invalidateSize(), 200);
-    }
-
-    function openExitModal() { document.getElementById('exit-modal').style.display = 'flex'; }
-    function closeExitModal() { document.getElementById('exit-modal').style.display = 'none'; }
-    function confirmExitApp() {
-      closeExitModal();
-      document.body.innerHTML = `
-        <div class="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center" dir="rtl">
-          <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-3 shadow-lg">✓</div>
-          <h2 class="text-base font-extrabold mb-1">شكراً لزيارتك بوابة سهل حوران</h2>
-          <p class="text-xs text-slate-400 mb-5">تم إنهاء الجلسة بنجاح، يمكنك إغلاق التطبيق الآن.</p>
-          <button onclick="location.reload()" class="px-5 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold border border-slate-700 cursor-pointer">العودة للتطبيق</button>
-        </div>
-      `;
-    }
-  </script>
-</body>
-</html>
+    // ترقية المرحلة على السيرفر السحابي
+    async function advanceReportStep(id, currentStep) {
+      if (currentStep < 3) {
+        try {
+          if (supabaseClient) {
+            await supabaseClient.from('reports').update({ step_index: currentStep + 1 }).eq('id', id);
+          }
+          closeDetailModal();
+          await fetchReportsFromCloud();
