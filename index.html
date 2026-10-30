@@ -37,6 +37,14 @@
       border: 1px solid #cbd5e1; 
       background: #e2e8f0;
     }
+
+    #detail-map {
+      height: 200px !important;
+      width: 100% !important;
+      border-radius: 0.75rem;
+      z-index: 10;
+      border: 1px solid #cbd5e1;
+    }
     
     /* نمط ضعاف النظر الفائق */
     body.low-vision-mode {
@@ -57,11 +65,6 @@
       min-height: 55px !important;
       font-size: 1.15rem !important;
       font-weight: 900 !important;
-      border: 3px solid #000000 !important;
-    }
-    body.low-vision-mode #map {
-      height: 300px !important;
-      min-height: 300px !important;
       border: 3px solid #000000 !important;
     }
   </style>
@@ -205,7 +208,7 @@
           </div>
         </div>
 
-        <!-- شريط فحص المتطلبات الثلاثة قبل التفعيل -->
+        <!-- شريط فحص المتطلبات الثلاثة -->
         <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-[11px]">
           <span class="font-extrabold text-slate-900 block text-xs mb-1">متطلبات اعتماد البلاغ:</span>
           <div class="flex items-center gap-2" id="req-loc">
@@ -301,6 +304,77 @@
     </div>
 
   </main>
+
+  <!-- ================== نافذة تفاصيل البلاغ الكاملة للمشرف (Detail Modal) ================== -->
+  <div id="detail-modal" style="display: none;" class="fixed inset-0 z-50 bg-slate-950/75 items-center justify-center p-3.5 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-sm w-full border border-slate-200 shadow-2xl overflow-hidden my-auto">
+      
+      <!-- رأس نافذة التفاصيل -->
+      <div class="p-4 bg-slate-950 text-white flex justify-between items-center">
+        <div>
+          <span class="text-[10px] text-emerald-400 font-bold block uppercase tracking-wider">تفاصيل البلاغ الميداني</span>
+          <h3 class="font-extrabold text-sm swiss-code" id="modal-report-id">CH-SH-0000</h3>
+        </div>
+        <button type="button" onclick="closeDetailModal()" class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-bold hover:bg-slate-700">
+          ✕
+        </button>
+      </div>
+
+      <div class="p-4 space-y-3.5 max-h-[75vh] overflow-y-auto text-xs">
+        
+        <!-- بطاقات المعلومات السريعة -->
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+            <span class="text-[10px] text-slate-500 block font-bold">المنطقة والبلدة</span>
+            <span class="text-xs font-black text-slate-950" id="modal-report-town">-</span>
+          </div>
+          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+            <span class="text-[10px] text-slate-500 block font-bold">تصنيف العطل</span>
+            <span class="text-xs font-black text-slate-950" id="modal-report-category">-</span>
+          </div>
+        </div>
+
+        <!-- صورة البلاغ الحية الملتقطة -->
+        <div>
+          <label class="block text-[11px] font-extrabold text-slate-800 mb-1">📸 الصورة الميدانية الملتقطة بالكاميرا:</label>
+          <div id="modal-photo-wrapper" class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 text-center">
+            <img id="modal-report-img" src="" alt="صورة البلاغ" class="w-full h-44 object-cover" />
+          </div>
+        </div>
+
+        <!-- نص وصف المشكلة -->
+        <div>
+          <label class="block text-[11px] font-extrabold text-slate-800 mb-1">✍️ وصف المشكلة من المواطن:</label>
+          <p id="modal-report-desc" class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 font-medium leading-relaxed">
+            -
+          </p>
+        </div>
+
+        <!-- خريطة موقع البلاغ الدقيق وزر الملاحة -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="text-[11px] font-extrabold text-slate-800">📍 الموقع الجغرافي المثبت:</label>
+            <a id="modal-gmaps-link" href="#" target="_blank" class="text-[10px] bg-emerald-50 text-emerald-800 font-bold border border-emerald-300 px-2.5 py-0.5 rounded-lg flex items-center gap-1 hover:bg-emerald-100">
+              <span>فتح في Google Maps ↗</span>
+            </a>
+          </div>
+          <div id="detail-map"></div>
+          <p id="modal-coords" class="text-[10px] font-mono text-slate-500 mt-1 text-center font-bold">32.0000, 35.0000</p>
+        </div>
+
+        <!-- أزرار الإجراءات (ترقية ومسح البلاغ) -->
+        <div class="pt-2 border-t border-slate-200 flex gap-2">
+          <button type="button" id="modal-advance-btn" onclick="" class="w-2/3 py-2.5 bg-slate-950 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition">
+            ترقية للمرحلة التالية ➔
+          </button>
+          <button type="button" id="modal-delete-btn" onclick="" class="w-1/3 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition">
+            مسح البلاغ 🗑️
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
 
   <!-- نافذة تأكيد الخروج -->
   <div id="exit-modal" style="display: none;" class="fixed inset-0 z-50 bg-slate-950/70 items-center justify-center p-4">
@@ -410,20 +484,24 @@
     let currentTown = '';
     let selectedLat = null;
     let selectedLng = null;
-    let isLocationVerified = false; // شرط 1: الموقع موثق في سهل حوران
-    let capturedPhotoData = null;  // شرط 2: صورة ملتقطة بالكاميرا
+    let isLocationVerified = false;
+    let capturedPhotoData = null;
     let currentFilterTown = 'all';
     let map = null, marker = null, accuracyCircle = null;
+    let detailMap = null, detailMarker = null;
 
     const STEPS = ['تم الاستلام', 'المراجعة الفنية', 'الفريق الميداني', 'تم الإنجاز'];
 
+    // نموذج أولي يحتوي على إحداثيات وصورة افتراضية للمعاينة
     let reports = [
       {
         id: 'CH-SH-4102',
         category: 'إنارة الشوارع',
         town: 'الشجرة',
-        desc: 'صيانة وحدة إنارة ومحول بالشارع الحيوي قرب المدرسة',
-        photo: null,
+        lat: 32.6515,
+        lng: 35.9420,
+        desc: 'صيانة وحدة إنارة ومحول بالشارع الحيوي قرب المدرسة الثانوية للبنات',
+        photo: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&auto=format&fit=crop&q=60',
         stepIndex: 2,
         time: 'منذ 45 دقيقة'
       }
@@ -461,9 +539,6 @@
       }
     }
 
-    // ==========================================
-    // معالجة تصوير الكاميرا الإلزامي
-    // ==========================================
     function handleImageCapture(input) {
       const file = input.files && input.files[0];
       if (!file) return;
@@ -495,15 +570,11 @@
       checkFormValidity();
     }
 
-    // ==========================================
-    // التحقق من المتطلبات الثلاثة مجتمعة
-    // ==========================================
     function checkFormValidity() {
       const desc = (document.getElementById('report-desc')?.value || '').trim();
       const descBadge = document.getElementById('desc-status-badge');
       const submitBtn = document.getElementById('submit-btn');
 
-      // فحص متطلب الوصف
       const hasDesc = desc.length >= 3;
       if (hasDesc) {
         descBadge.innerText = '✓ تم الوصف';
@@ -515,7 +586,6 @@
         document.getElementById('req-desc').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">كتابة وصف العطل في الخانة المخصصة</span>`;
       }
 
-      // فحص متطلب الصورة
       const hasPhoto = !!capturedPhotoData;
       if (hasPhoto) {
         document.getElementById('req-photo').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">تم التقاط الصورة بالكاميرا بنجاح</span>`;
@@ -523,7 +593,6 @@
         document.getElementById('req-photo').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">تصوير المشكلة مباشرة بالكاميرا</span>`;
       }
 
-      // فحص متطلب الموقع داخل سهل حوران
       const hasLocation = isLocationVerified;
       if (hasLocation) {
         document.getElementById('req-loc').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">تم تثبيت الموقع الفعلي في (${currentTown})</span>`;
@@ -531,7 +600,6 @@
         document.getElementById('req-loc').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">تثبيت الموقع الجغرافي داخل سهل حوران</span>`;
       }
 
-      // هل الشروط الثلاثة جاهزة ومطابقة؟
       if (hasLocation && hasPhoto && hasDesc) {
         submitBtn.disabled = false;
         submitBtn.className = 'w-full py-3.5 bg-slate-950 hover:bg-slate-900 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer';
@@ -548,9 +616,6 @@
       }
     }
 
-    // ==========================================
-    // فحص الـ GPS الصارم
-    // ==========================================
     function locateUser(isManualClick) {
       const infoEl = document.getElementById('geo-info');
       const subInfoEl = document.getElementById('geo-subinfo');
@@ -682,7 +747,6 @@
     function submitReport() {
       const desc = (document.getElementById('report-desc')?.value || '').trim();
 
-      // تدقيق أمني نهائي مانع للتحايل
       if (!isLocationVerified) {
         alert('مرفوض: يجب التحقق من موقعك داخل سهل حوران أولاً.');
         return;
@@ -698,11 +762,12 @@
 
       const code = 'CH-SH-' + Math.floor(1000 + Math.random() * 9000);
 
-      // تسجيل البلاغ مع حفظ الصورة والوصف والموقع الميداني
       reports.unshift({
         id: code,
         category: currentCategory,
         town: currentTown,
+        lat: selectedLat,
+        lng: selectedLng,
         desc: desc,
         photo: capturedPhotoData,
         stepIndex: 0,
@@ -712,7 +777,6 @@
       document.getElementById('ticket-number').innerText = code;
       document.getElementById('success-box').style.display = 'block';
       
-      // تفريغ النموذج وإعادة القفل
       document.getElementById('report-desc').value = '';
       removeCapturedPhoto();
       renderAdminReports();
@@ -720,7 +784,7 @@
     }
 
     // ==========================================
-    // لوحة الإدارة وعرض صور البلاغات
+    // لوحة الإدارة، التفاصيل، ومسح البلاغات
     // ==========================================
     function isAdminSessionActive() {
       const session = localStorage.getItem('sahl_admin_session_expiry');
@@ -778,6 +842,7 @@
 
     function adminLogout() {
       localStorage.removeItem('sahl_admin_session_expiry');
+      closeDetailModal();
       switchView('citizen');
     }
 
@@ -793,6 +858,7 @@
       renderAdminReports();
     }
 
+    // بناء قائمة البلاغات مع أزرار التفاصيل والحذف
     function renderAdminReports() {
       const container = document.getElementById('admin-reports-list');
       const searchQuery = (document.getElementById('admin-search-input')?.value || '').toLowerCase();
@@ -814,7 +880,7 @@
       if (list.length === 0) {
         container.innerHTML = `
           <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-400">
-            <p class="text-xs font-bold">لا توجد بلاغات في هذا النطاق</p>
+            <p class="text-xs font-bold">لا توجد بلاغات مسجلة في هذا النطاق</p>
           </div>
         `;
         return;
@@ -837,16 +903,6 @@
         });
         stepsHtml += '</div>';
 
-        // عرض صورة البلاغ الحية إذا وجدت
-        let photoHtml = '';
-        if (rep.photo) {
-          photoHtml = `
-            <div class="mt-2 rounded-xl overflow-hidden border border-slate-200">
-              <img src="${rep.photo}" alt="صورة البلاغ الميدانية" class="w-full h-36 object-cover" />
-            </div>
-          `;
-        }
-
         card.innerHTML = `
           <div class="flex justify-between items-start">
             <div class="flex items-center gap-1.5">
@@ -856,34 +912,109 @@
             <span class="text-[10px] swiss-code text-slate-400">${rep.time}</span>
           </div>
 
-          <div>
-            <h4 class="text-xs font-black text-slate-950">${rep.category}</h4>
-            <p class="text-xs text-slate-600 mt-0.5 leading-relaxed bg-slate-50 p-2 rounded-xl border border-slate-100 font-medium">${rep.desc}</p>
-            ${photoHtml}
+          <div class="flex gap-2.5 items-center">
+            ${rep.photo ? `<img src="${rep.photo}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0" alt="معاينة" />` : ''}
+            <div class="overflow-hidden">
+              <h4 class="text-xs font-black text-slate-950">${rep.category}</h4>
+              <p class="text-xs text-slate-600 truncate font-medium mt-0.5">${rep.desc}</p>
+            </div>
           </div>
 
           ${stepsHtml}
 
-          <div class="pt-2 border-t border-slate-100 flex justify-between items-center">
-            <span class="text-[10px] font-bold text-slate-500">
-              الحالة: <b class="text-slate-950">${STEPS[rep.stepIndex]}</b>
-            </span>
+          <!-- أزرار الإجراءات على الكرت: عرض التفاصيل + مسح -->
+          <div class="pt-2 border-t border-slate-100 flex justify-between items-center gap-2">
+            <button type="button" onclick="openReportDetails('${rep.id}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-900 text-[11px] font-bold rounded-lg transition flex items-center gap-1 active:scale-95 cursor-pointer">
+              <span>عرض التفاصيل والخريطة 🔍</span>
+            </button>
 
-            <div class="flex gap-1.5">
-              ${rep.stepIndex < 3 ? `
-                <button type="button" onclick="advanceReportStep('${rep.id}')" class="px-3 py-1 bg-slate-950 hover:bg-slate-800 text-white text-[11px] font-bold rounded-lg transition active:scale-95 cursor-pointer">
-                  ترقية للمرحلة التالية ➔
-                </button>
-              ` : `
-                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                  مكتمل ومغلق ✓
-                </span>
-              `}
-            </div>
+            <button type="button" onclick="deleteReport('${rep.id}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg text-xs font-bold border border-rose-200 transition active:scale-95 cursor-pointer" title="مسح البلاغ">
+              مسح 🗑️
+            </button>
           </div>
         `;
         container.appendChild(card);
       });
+    }
+
+    // ==========================================
+    // فتح وعرض تفاصيل البلاغ للمشرف
+    // ==========================================
+    function openReportDetails(id) {
+      const rep = reports.find(r => r.id === id);
+      if (!rep) return;
+
+      document.getElementById('modal-report-id').innerText = rep.id;
+      document.getElementById('modal-report-town').innerText = rep.town;
+      document.getElementById('modal-report-category').innerText = rep.category;
+      document.getElementById('modal-report-desc').innerText = rep.desc;
+
+      // صورة العطل
+      const imgEl = document.getElementById('modal-report-img');
+      const photoWrap = document.getElementById('modal-photo-wrapper');
+      if (rep.photo) {
+        imgEl.src = rep.photo;
+        photoWrap.style.display = 'block';
+      } else {
+        photoWrap.style.display = 'none';
+      }
+
+      // الإحداثيات ورابط خرائط جوجل للملاحة
+      const lat = rep.lat || 32.6515;
+      const lng = rep.lng || 35.9420;
+      document.getElementById('modal-coords').innerText = `الإحداثيات: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+      document.getElementById('modal-gmaps-link').href = `https://www.google.com/maps?q=${lat},${lng}`;
+
+      // أزرار الترقية والمسح داخل النافذة
+      const advBtn = document.getElementById('modal-advance-btn');
+      if (rep.stepIndex < 3) {
+        advBtn.style.display = 'block';
+        advBtn.innerText = `ترقية إلى (${STEPS[rep.stepIndex + 1]}) ➔`;
+        advBtn.onclick = function() {
+          advanceReportStep(rep.id);
+          openReportDetails(rep.id);
+        };
+      } else {
+        advBtn.style.display = 'none';
+      }
+
+      const delBtn = document.getElementById('modal-delete-btn');
+      delBtn.onclick = function() {
+        deleteReport(rep.id);
+      };
+
+      // إظهار النافذة
+      document.getElementById('detail-modal').style.display = 'flex';
+
+      // رسم الخريطة التفصيلية لموقع البلاغ
+      setTimeout(() => {
+        try {
+          if (!detailMap) {
+            detailMap = L.map('detail-map', { zoomControl: false }).setView([lat, lng], 16);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(detailMap);
+            detailMarker = L.marker([lat, lng]).addTo(detailMap);
+          } else {
+            detailMap.setView([lat, lng], 16);
+            detailMarker.setLatLng([lat, lng]);
+          }
+          detailMap.invalidateSize();
+        } catch (e) {
+          console.error(e);
+        }
+      }, 250);
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detail-modal').style.display = 'none';
+    }
+
+    // مسح / حذف البلاغ نهائياً
+    function deleteReport(id) {
+      if (confirm(`هل أنت متأكد من مسح وحذف البلاغ (${id}) نهائياً من سجلات البلدية؟`)) {
+        reports = reports.filter(r => r.id !== id);
+        closeDetailModal();
+        renderAdminReports();
+      }
     }
 
     function advanceReportStep(id) {
