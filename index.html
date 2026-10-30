@@ -3,32 +3,41 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>بلدية سهل حوران الذكية</title>
+  <title>بلدية سهل حوران | المنصة الرقمية</title>
 
-  <!-- ربط تطبيق الهاتف و PWA -->
+  <!-- ربط تطبيق الهاتف PWA -->
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#047857" />
+  <meta name="theme-color" content="#0f172a" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="سهل حوران" />
   
-  <!-- المكتبات والأيقونات -->
+  <!-- المكتبات والخطوط -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet" />
 
   <style>
     body { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
-    #map { height: 280px; width: 100%; border-radius: 1rem; z-index: 10; }
+    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+    #map { height: 280px; width: 100%; border-radius: 1.25rem; z-index: 10; }
     
-    /* نمط مخصص لتعزيز الرؤية لضعاف البصر */
+    /* تأثيرات البطاقات الأوروبية الفاخرة */
+    .glass-card {
+      background: #ffffff;
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+    }
+    
+    /* وضع تعزيز الرؤية لضعاف البصر */
     body.low-vision-mode {
       font-size: 120% !important;
       background-color: #ffffff !important;
       color: #000000 !important;
     }
     body.low-vision-mode button, 
+    body.low-vision-mode select, 
     body.low-vision-mode input, 
     body.low-vision-mode textarea {
       font-size: 110% !important;
@@ -36,50 +45,54 @@
       border-color: #000000 !important;
       font-weight: 800 !important;
     }
-    body.low-vision-mode .cat-btn {
-      padding: 1rem !important;
-    }
 
     .pulse-dot {
-      animation: pulse 1.8s infinite;
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
     @keyframes pulse {
-      0% { transform: scale(0.95); opacity: 0.9; }
-      50% { transform: scale(1.15); opacity: 0.5; }
-      100% { transform: scale(0.95); opacity: 0.9; }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
     }
   </style>
 </head>
-<body id="app-body" class="bg-stone-100 text-stone-900 pb-20 select-none transition-all duration-150">
+<body id="app-body" class="bg-slate-50 text-slate-900 pb-24 select-none antialiased">
 
-  <!-- شريط تنبيه التثبيت -->
-  <div id="install-banner" class="hidden bg-stone-900 text-white px-4 py-2.5 flex items-center justify-between text-xs font-semibold sticky top-0 z-50 shadow-md">
-    <span>📲 تثبيت التطبيق على الشاشة الرئيسية</span>
-    <button onclick="installApp()" class="bg-emerald-600 px-3 py-1 rounded-lg text-white font-bold hover:bg-emerald-700">تثبيت</button>
+  <!-- شريط تنبيه التثبيت الذكي -->
+  <div id="install-banner" class="hidden bg-slate-950 text-slate-100 px-4 py-2.5 flex items-center justify-between text-xs font-semibold sticky top-0 z-50 shadow-md border-b border-slate-800">
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span>تثبيت النسخة الرسمية على الهاتف</span>
+    </div>
+    <button onclick="installApp()" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded-lg text-white font-bold transition">تثبيت</button>
   </div>
 
-  <!-- الترويسة الرئيسية -->
-  <header class="bg-white border-b border-stone-200 sticky top-0 z-40 shadow-sm">
+  <!-- الترويسة الرئيسية التنفيذية -->
+  <header class="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40">
     <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center gap-2.5">
-        <div class="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-bold text-xl shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-slate-900 to-slate-800 text-white flex items-center justify-center font-bold text-lg shadow-sm border border-slate-700/20">
           ح
         </div>
         <div>
-          <h1 class="font-extrabold text-base leading-tight text-stone-900">بلدية سهل حوران الذكية</h1>
-          <p class="text-[11px] text-stone-500 font-semibold">بوابة البلاغات والملاحظات الميدانية</p>
+          <div class="flex items-center gap-1.5">
+            <h1 class="font-extrabold text-[15px] leading-tight text-slate-900">بلدية سهل حوران</h1>
+            <span class="text-[9px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded border border-slate-200">الذكية</span>
+          </div>
+          <p class="text-[11px] text-slate-500 font-medium">الطرة • الشجرة • الذنيبة • عمراوة</p>
         </div>
       </div>
       
-      <div class="flex items-center gap-1.5">
-        <button onclick="openVisionModal()" title="خيارات الرؤية والقراءة" class="p-2 text-xs font-bold bg-stone-100 rounded-lg hover:bg-stone-200 flex items-center gap-1">
-          👁️
+      <!-- أدوات التنقل العلوية -->
+      <div class="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
+        <button onclick="openVisionModal()" title="خيارات الرؤية والقراءة" class="w-8 h-8 flex items-center justify-center text-xs font-bold bg-white text-slate-700 rounded-lg shadow-2xs hover:bg-slate-50 transition">
+          <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
         </button>
-        <button onclick="switchView('citizen')" id="btn-citizen" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-700 text-white">
+        <button onclick="switchView('citizen')" id="btn-citizen" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-2xs transition">
           المواطن
         </button>
-        <button onclick="handleAdminTabClick()" id="btn-admin" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-stone-100 text-stone-700">
-          الإدارة 🔒
+        <button onclick="handleAdminTabClick()" id="btn-admin" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1">
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          الإدارة
         </button>
       </div>
     </div>
@@ -90,182 +103,216 @@
     <!-- ================== واجهة المواطن ================== -->
     <div id="view-citizen" class="space-y-4">
       
-      <div class="bg-gradient-to-r from-emerald-800 to-teal-800 text-white p-4 rounded-2xl shadow-sm">
-        <h2 class="text-base font-bold mb-1">خدمة أهالي سهل حوران</h2>
-        <p class="text-xs text-emerald-100 leading-relaxed">
-          نظام بلدي لاستقبال ومعالجة الملاحظات في الطرة، الشجرة، الذنيبة، وعمراوة مع تحديد الموقع الفعلي بالـ GPS.
-        </p>
+      <!-- بطاقة ترحيب عصرية -->
+      <div class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 text-white p-5 rounded-3xl shadow-sm border border-slate-800">
+        <div class="relative z-10">
+          <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300 bg-emerald-900/60 px-2.5 py-1 rounded-full border border-emerald-700/50 mb-2">
+            بوابة الخدمات البلدية
+          </span>
+          <h2 class="text-base font-extrabold tracking-tight mb-1">تسجيل ملاحظة ميدانية فورية</h2>
+          <p class="text-xs text-slate-300 leading-relaxed font-normal">
+            تحديد موقع الخلل تلقائياً بواسطة الأقمار الصناعية لسرعة استجابة ورش الصيانة.
+          </p>
+        </div>
       </div>
 
-      <!-- نموذج البلاغ -->
-      <div class="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+      <!-- نموذج تسجيل البلاغ -->
+      <div class="glass-card p-5 rounded-3xl space-y-4">
         
         <!-- 1. التصنيف -->
         <div>
-          <label class="block text-xs font-bold text-stone-700 mb-2">1. نوع الملاحظة أو العطل</label>
+          <label class="block text-xs font-bold text-slate-800 mb-2.5">1. فئة الملاحظة أو البلاغ</label>
           <div class="grid grid-cols-2 gap-2" id="category-selector">
-            <button onclick="setCategory(this, 'تراكم النفايات')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-emerald-600 bg-emerald-50 text-emerald-950 text-right">🗑️ تراكم النفايات</button>
-            <button onclick="setCategory(this, 'حفر وهبوطات الطرق')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-stone-200 text-right">🚧 هبوطات الطرق</button>
-            <button onclick="setCategory(this, 'أعطال إنارة الشوارع')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-stone-200 text-right">💡 أعطال الإنارة</button>
-            <button onclick="setCategory(this, 'مناهل وتصريف المياه')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-stone-200 text-right">🌧️ تصريف المياه</button>
-            <button onclick="setCategory(this, 'الأرصفة والمرافق')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-stone-200 text-right">🌳 الأرصفة والمرافق</button>
-            <button onclick="setCategory(this, 'ملاحظات أخرى')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-stone-200 text-right">📦 ملاحظات أخرى</button>
+            <button onclick="setCategory(this, 'تراكم النفايات')" class="cat-btn p-3 text-xs font-bold border rounded-2xl border-emerald-600 bg-emerald-50/70 text-emerald-950 text-right transition">🗑️ تراكم النفايات</button>
+            <button onclick="setCategory(this, 'حفر وهبوطات الطرق')" class="cat-btn p-3 text-xs font-bold border rounded-2xl border-slate-200 text-slate-700 hover:border-slate-300 text-right transition">🚧 هبوطات الطرق</button>
+            <button onclick="setCategory(this, 'أعطال إنارة الشوارع')" class="cat-btn p-3 text-xs font-bold border rounded-2xl border-slate-200 text-slate-700 hover:border-slate-300 text-right transition">💡 أعطال الإنارة</button>
+            <button onclick="setCategory(this, 'مناهل وتصريف المياه')" class="cat-btn p-3 text-xs font-bold border rounded-2xl border-slate-200 text-slate-700 hover:border-slate-300 text-right transition">🌧️ تصريف المياه</button>
+            <button onclick="setCategory(this, 'الأرصفة والمرافق')" class="cat-btn p-3 text-xs font-bold border rounded-2xl border-slate-200 text-slate-700 hover:border-slate-300 text-right transition">🌳 الأرصفة والمرافق</button>
+            <button onclick="setCategory(this, 'ملاحظات أخرى')" class="cat-btn p-3 text-xs font-bold border rounded-2xl border-slate-200 text-slate-700 hover:border-slate-300 text-right transition">📦 ملاحظات أخرى</button>
           </div>
         </div>
 
         <!-- 2. الموقع والـ GPS -->
         <div>
           <div class="flex justify-between items-center mb-2">
-            <label class="text-xs font-bold text-stone-700">2. موقع البلاغ (تحديد تلقائي دقيق)</label>
-            <button onclick="locateUser(true)" class="flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-200">
-              <span class="inline-block w-2 h-2 rounded-full bg-emerald-600 pulse-dot"></span>
-              🎯 تحديث موقعي
+            <label class="text-xs font-bold text-slate-800">2. النطاق الجغرافي والموقع</label>
+            <button onclick="locateUser(true)" class="flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100/80 px-2.5 py-1 rounded-xl border border-emerald-200 transition">
+              <span class="w-2 h-2 rounded-full bg-emerald-600 pulse-dot"></span>
+              تحديث موقعي
             </button>
           </div>
 
           <div class="grid grid-cols-4 gap-1.5 mb-2.5">
-            <button id="town-الطرة" onclick="manualFocusTown('الطرة', 32.6120, 35.9910)" class="town-btn py-2 text-xs font-bold border rounded-xl bg-stone-100 text-stone-700">الطرة</button>
-            <button id="town-الشجرة" onclick="manualFocusTown('الشجرة', 32.6515, 35.9420)" class="town-btn py-2 text-xs font-bold border rounded-xl bg-stone-100 text-stone-700">الشجرة</button>
-            <button id="town-الذنيبة" onclick="manualFocusTown('الذنيبة', 32.6780, 35.9210)" class="town-btn py-2 text-xs font-bold border rounded-xl bg-stone-100 text-stone-700">الذنيبة</button>
-            <button id="town-عمراوة" onclick="manualFocusTown('عمراوة', 32.6840, 35.8850)" class="town-btn py-2 text-xs font-bold border rounded-xl bg-stone-100 text-stone-700">عمراوة</button>
+            <button id="town-الطرة" onclick="manualFocusTown('الطرة', 32.6120, 35.9910)" class="town-btn py-2 text-xs font-bold border rounded-xl bg-slate-100 text-slate-700 transition">الطرة</button>
+            <button id="town-الشجرة" onclick="manualFocusTown('الشجرة', 32.6515, 35.9420)" class="town-btn py-2 text-xs font-bold border rounded-xl bg-slate-100 text-slate-700 transition">الشجرة</button>
+            <button id="town-الذنيبة" onclick="manualFocusTown('الذنيبة', 32.6780, 35.9210)" class="town-btn py-2 text-xs font-bold border rounded-xl bg-slate-100 text-slate-700 transition">الذنيبة</button>
+            <button id="town-عمراوة" onclick="manualFocusTown('عمراوة', 32.6840, 35.8850)" class="town-btn py-2 text-xs font-bold border rounded-xl bg-slate-100 text-slate-700 transition">عمراوة</button>
           </div>
 
           <div id="map"></div>
 
-          <div id="gps-status-card" class="mt-2 p-2 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
-            <p id="geo-info" class="text-xs font-bold text-emerald-900">
-              📡 جاري قراءة موقعك الفعلي بدقة GPS...
-            </p>
-            <p id="geo-accuracy" class="text-[10px] text-emerald-700 font-mono mt-0.5">
-              (يرجى السماح بالوصول للموقع)
-            </p>
+          <div class="mt-2.5 p-2.5 bg-slate-100/70 border border-slate-200/80 rounded-2xl flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+              <p id="geo-info" class="text-xs font-bold text-slate-800">
+                جاري فحص الموقع الجغرافي...
+              </p>
+            </div>
+            <span id="geo-accuracy" class="text-[10px] text-slate-500 font-mono font-medium">GPS</span>
           </div>
         </div>
 
         <!-- 3. الصورة والوصف -->
         <div>
-          <label class="block text-xs font-bold text-stone-700 mb-1.5">3. تصوير المشكلة (اختياري)</label>
-          <input type="file" accept="image/*" capture="environment" id="report-img" class="block w-full text-xs text-stone-500 file:mr-0 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 mb-3" />
+          <label class="block text-xs font-bold text-slate-800 mb-1.5">3. إرفاق صورة العطل (اختياري)</label>
+          <input type="file" accept="image/*" capture="environment" id="report-img" class="block w-full text-xs text-slate-500 file:mr-0 file:py-2.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 mb-3 cursor-pointer" />
 
-          <label class="block text-xs font-bold text-stone-700 mb-1">وصف أو أقرب معلم</label>
-          <textarea id="report-desc" rows="2" placeholder="اكتب تفاصيل إضافية أو أقرب معلم واضح..." class="w-full text-xs p-3 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-700 outline-none"></textarea>
+          <label class="block text-xs font-bold text-slate-800 mb-1">وصف المشكلة أو أقرب معلم</label>
+          <textarea id="report-desc" rows="2" placeholder="اكتب تفاصيل إضافية لمساعدة فريق العمل الميداني..." class="w-full text-xs p-3 bg-slate-50/50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-slate-900 outline-none transition"></textarea>
         </div>
 
-        <button onclick="submitReport()" class="w-full py-3.5 bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-bold text-sm rounded-xl shadow-md transition">
-          إرسال البلاغ والحصول على رقم متابعة
+        <button onclick="submitReport()" class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white font-bold text-sm rounded-2xl shadow-sm transition">
+          إرسال البلاغ والحصول على رقم تتبع
         </button>
       </div>
 
-      <!-- نتيجة الإرسال -->
-      <div id="success-box" class="hidden bg-emerald-50 border border-emerald-300 p-5 rounded-2xl text-center space-y-2.5">
-        <div class="w-10 h-10 bg-emerald-600 text-white rounded-full flex items-center justify-center mx-auto text-xl font-bold">✓</div>
-        <h3 class="text-sm font-bold text-emerald-950">تم تسجيل بلاغك لدى بلدية سهل حوران</h3>
-        <p class="text-xs text-stone-600">احتفظ برقم التتبع لمراجعة حالة الإنجاز:</p>
-        <div class="bg-white py-1.5 px-4 rounded-xl border border-emerald-300 inline-block font-mono font-bold text-lg text-emerald-800" id="ticket-number">
+      <!-- بطاقة التأكيد بعد الإرسال -->
+      <div id="success-box" class="hidden glass-card border-emerald-200 bg-emerald-50/30 p-5 rounded-3xl text-center space-y-3">
+        <div class="w-11 h-11 bg-emerald-600 text-white rounded-2xl flex items-center justify-center mx-auto text-xl font-bold shadow-sm">
+          ✓
+        </div>
+        <div>
+          <h3 class="text-sm font-extrabold text-slate-900">تم تسجيل البلاغ بنجاح</h3>
+          <p class="text-xs text-slate-500 mt-0.5">تم توجيه الملاحظة إلى نظام العمليات في بلدية سهل حوران</p>
+        </div>
+        <div class="bg-white py-2 px-5 rounded-xl border border-slate-200 inline-block font-mono-code font-bold text-lg text-slate-900 shadow-2xs" id="ticket-number">
           SH-26-0000
         </div>
       </div>
     </div>
 
-    <!-- ================== واجهة الإدارة المحمية ================== -->
+    <!-- ================== واجهة الإدارة الأوروبية الفاخرة ================== -->
     <div id="view-admin" class="hidden space-y-4">
-      <div class="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex justify-between items-center">
-        <div>
-          <div class="flex items-center gap-2">
-            <h2 class="text-sm font-bold text-stone-900">غرفة عمليات البلدية</h2>
-            <!-- مؤشر وقت الجلسة النشطة المتبقي -->
-            <span id="session-countdown-badge" class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-mono font-bold">
-              نشط 5:00 د
-            </span>
+      
+      <!-- شريط العنوان التنفيذي مع المؤقت الذكي -->
+      <div class="glass-card p-4 rounded-3xl">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-sm font-extrabold text-slate-900">لوحة العمليات والسيطرة</h2>
+              <!-- شارة الأمان الذكية -->
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono-code font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot"></span>
+                <span id="session-countdown-badge">05:00</span>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-500 font-medium">الرقابة الميدانية لبلاغات سهل حوران</p>
           </div>
-          <p class="text-[11px] text-stone-500">إدارة البلاغات الميدانية</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="adminLogout()" class="text-xs bg-rose-50 text-rose-700 border border-rose-200 px-2.5 py-1 rounded-lg font-bold hover:bg-rose-100">
-            خروج 🚪
+
+          <button onclick="adminLogout()" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-rose-50 hover:text-rose-700 rounded-xl transition border border-slate-200 flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            خروج
           </button>
-          <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full" id="reports-count">
-            0 بلاغات
-          </span>
+        </div>
+
+        <!-- كروت المؤشرات السريعة (KPI Metrics) -->
+        <div class="grid grid-cols-3 gap-2 mt-3 pt-1">
+          <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-100 text-center">
+            <span class="text-[10px] text-slate-400 font-semibold block">الإجمالي</span>
+            <span class="text-base font-mono-code font-extrabold text-slate-900" id="stat-total">1</span>
+          </div>
+          <div class="bg-amber-50/60 p-2.5 rounded-2xl border border-amber-100 text-center">
+            <span class="text-[10px] text-amber-700 font-semibold block">قيد المتابعة</span>
+            <span class="text-base font-mono-code font-extrabold text-amber-800" id="stat-pending">1</span>
+          </div>
+          <div class="bg-emerald-50/60 p-2.5 rounded-2xl border border-emerald-100 text-center">
+            <span class="text-[10px] text-emerald-700 font-semibold block">تم الإنجاز</span>
+            <span class="text-base font-mono-code font-extrabold text-emerald-800" id="stat-resolved">0</span>
+          </div>
         </div>
       </div>
 
-      <div id="admin-reports-list" class="space-y-2.5">
-        <!-- تملأ بالبلاغات -->
+      <!-- فلتر المناطق الأوروبي (Pill Tabs) -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-bold scrollbar-none">
+        <button onclick="filterAdminReports('all')" class="admin-filter-pill px-3 py-1.5 rounded-xl bg-slate-900 text-white shrink-0 transition" data-filter="all">الكل</button>
+        <button onclick="filterAdminReports('الطرة')" class="admin-filter-pill px-3 py-1.5 rounded-xl bg-white text-slate-600 border border-slate-200 shrink-0 hover:bg-slate-50 transition" data-filter="الطرة">الطرة</button>
+        <button onclick="filterAdminReports('الشجرة')" class="admin-filter-pill px-3 py-1.5 rounded-xl bg-white text-slate-600 border border-slate-200 shrink-0 hover:bg-slate-50 transition" data-filter="الشجرة">الشجرة</button>
+        <button onclick="filterAdminReports('الذنيبة')" class="admin-filter-pill px-3 py-1.5 rounded-xl bg-white text-slate-600 border border-slate-200 shrink-0 hover:bg-slate-50 transition" data-filter="الذنيبة">الذنيبة</button>
+        <button onclick="filterAdminReports('عمراوة')" class="admin-filter-pill px-3 py-1.5 rounded-xl bg-white text-slate-600 border border-slate-200 shrink-0 hover:bg-slate-50 transition" data-filter="عمراوة">عمراوة</button>
+      </div>
+
+      <!-- قائمة البلاغات التنفيذية -->
+      <div id="admin-reports-list" class="space-y-3">
+        <!-- تملأ برمجياً ببطاقات فخمة -->
       </div>
     </div>
 
   </main>
 
-  <!-- ================== نافذة تسجيل دخول المشرف (Modal) ================== -->
-  <div id="login-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl p-5 max-w-xs w-full shadow-2xl border border-stone-200 space-y-4">
+  <!-- نافذة تسجيل دخول المشرف (Modal) -->
+  <div id="login-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="glass-card rounded-3xl p-6 max-w-xs w-full shadow-2xl border border-slate-200 space-y-4">
       <div class="text-center">
-        <div class="w-12 h-12 bg-stone-100 text-stone-800 rounded-full flex items-center justify-center mx-auto text-2xl font-bold mb-2">
-          🔒
+        <div class="w-12 h-12 bg-slate-100 text-slate-800 rounded-2xl flex items-center justify-center mx-auto text-lg font-bold mb-2">
+          <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
         </div>
-        <h3 class="font-extrabold text-stone-900 text-base">دخول المشرف المعتمد</h3>
-        <p class="text-xs text-stone-500 mt-0.5">جلسة مؤمّنة تدوم لمدة 5 دقائق</p>
+        <h3 class="font-extrabold text-slate-900 text-base">دخول غرفة العمليات</h3>
+        <p class="text-[11px] text-slate-500 mt-0.5">جلسة مؤمّنة تدوم لمدة 5 دقائق</p>
       </div>
 
-      <div class="space-y-3">
+      <div class="space-y-2.5">
         <div>
-          <label class="block text-xs font-bold text-stone-700 mb-1">اسم المستخدم</label>
-          <input type="text" id="admin-user" placeholder="admin" class="w-full text-xs p-2.5 border border-stone-300 rounded-lg outline-none focus:border-emerald-600 font-mono" />
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">اسم المستخدم</label>
+          <input type="text" id="admin-user" placeholder="admin" class="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-slate-900 font-mono-code transition" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-stone-700 mb-1">كلمة المرور</label>
-          <input type="password" id="admin-pass" placeholder="••••••••" class="w-full text-xs p-2.5 border border-stone-300 rounded-lg outline-none focus:border-emerald-600 font-mono" />
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">رمز المرور</label>
+          <input type="password" id="admin-pass" placeholder="••••••••" class="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-slate-900 font-mono-code transition" />
         </div>
-        <p id="login-err" class="text-rose-600 text-[11px] font-bold hidden text-center">اسم المستخدم أو كلمة المرور غير صحيحة</p>
+        <p id="login-err" class="text-rose-600 text-[11px] font-bold hidden text-center">البيانات غير صحيحة، يرجى إعادة المحاولة</p>
       </div>
 
       <div class="flex gap-2 pt-1">
-        <button onclick="closeLoginModal()" class="w-1/2 py-2 border border-stone-300 text-stone-700 rounded-lg text-xs font-bold hover:bg-stone-50">
+        <button onclick="closeLoginModal()" class="w-1/2 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-50 transition">
           إلغاء
         </button>
-        <button onclick="executeLogin()" class="w-1/2 py-2 bg-stone-900 text-white rounded-lg text-xs font-bold hover:bg-stone-800">
-          تسجيل الدخول
+        <button onclick="executeLogin()" class="w-1/2 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition">
+          دخول
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ================== نافذة خيارات الرؤية والقراءة (Modal) ================== -->
-  <div id="vision-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl p-5 max-w-xs w-full shadow-2xl border border-stone-200 space-y-4">
+  <!-- نافذة خيارات الرؤية والقراءة (Modal) -->
+  <div id="vision-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="glass-card rounded-3xl p-6 max-w-xs w-full shadow-2xl border border-slate-200 space-y-4">
       <div class="text-center">
-        <div class="w-12 h-12 bg-emerald-50 text-emerald-800 rounded-full flex items-center justify-center mx-auto text-2xl font-bold mb-2">
-          👁️
-        </div>
-        <h3 class="font-extrabold text-stone-900 text-base">خيارات الرؤية والقراءة</h3>
-        <p class="text-xs text-stone-500">اختر النمط المناسب لقراءة وتصفح أوضح</p>
+        <h3 class="font-extrabold text-slate-900 text-base">خيارات الرؤية والقراءة</h3>
+        <p class="text-xs text-slate-500">تخصيص العرض لتسهيل القراءة وتصفح النظام</p>
       </div>
 
       <div class="space-y-2">
-        <button onclick="applyVisionMode('normal')" class="w-full p-3 text-right border-2 rounded-xl transition flex flex-col hover:border-emerald-600 bg-stone-50 border-stone-200" id="opt-normal">
-          <span class="text-xs font-bold text-stone-900">🌟 1. العرض القياسي المريح</span>
-          <span class="text-[10px] text-stone-500 mt-0.5">خط طبيعي وألوان متوازنة لجميع الشاشات</span>
+        <button onclick="applyVisionMode('normal')" class="w-full p-3 text-right border rounded-2xl transition flex flex-col hover:border-slate-400 bg-slate-50 border-slate-200" id="opt-normal">
+          <span class="text-xs font-bold text-slate-900">🌟 النمط القياسي</span>
+          <span class="text-[10px] text-slate-500 mt-0.5">خط متوازن وتباين مريح لجميع الأجهزة</span>
         </button>
 
-        <button onclick="applyVisionMode('low-vision')" class="w-full p-3 text-right border-2 rounded-xl transition flex flex-col hover:border-emerald-600 bg-stone-50 border-stone-200" id="opt-low-vision">
-          <span class="text-xs font-bold text-stone-900">🔍 2. نمط تعزيز الرؤية (لضعاف البصر)</span>
-          <span class="text-[10px] text-stone-500 mt-0.5">خطوط مكبرة جداً، أزرار عريضة، وتباين عالي لتسهيل القراءة</span>
+        <button onclick="applyVisionMode('low-vision')" class="w-full p-3 text-right border rounded-2xl transition flex flex-col hover:border-slate-400 bg-slate-50 border-slate-200" id="opt-low-vision">
+          <span class="text-xs font-bold text-slate-900">🔍 نمط تعزيز الرؤية (لضعاف البصر)</span>
+          <span class="text-[10px] text-slate-500 mt-0.5">خطوط مكبرة، حدود داكنة وأزرار واضحة</span>
         </button>
       </div>
 
-      <button onclick="closeVisionModal()" class="w-full py-2 bg-stone-900 text-white rounded-lg text-xs font-bold">
+      <button onclick="closeVisionModal()" class="w-full py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold">
         إغلاق
       </button>
     </div>
   </div>
 
   <script>
-    // بيانات الدخول
     const ADMIN_CREDENTIALS = { user: 'admin', pass: 'sahl2026' };
-    const SESSION_DURATION_MS = 5 * 60 * 1000; // 5 دقائق بالميلي ثانية
+    const SESSION_DURATION_MS = 5 * 60 * 1000; // 5 دقائق
 
-    // فحص صلاحية الجلسة المحفوظة لمدة 5 دقائق
     function isAdminSessionActive() {
       const session = localStorage.getItem('sahl_admin_session_expiry');
       if (!session) return false;
@@ -278,7 +325,6 @@
       }
     }
 
-    // إحداثيات ومراكز بلدات سهل حوران
     const TOWNS = [
       { name: 'الطرة', lat: 32.6120, lng: 35.9910 },
       { name: 'الشجرة', lat: 32.6515, lng: 35.9420 },
@@ -291,6 +337,7 @@
     let currentTown = 'الطرة';
     let selectedLat = 32.6120;
     let selectedLng = 35.9910;
+    let currentAdminFilter = 'all';
     let map, marker, accuracyCircle;
     let deferredPrompt;
 
@@ -299,7 +346,7 @@
         id: 'SH-26-4102',
         category: 'أعطال إنارة الشوارع',
         town: 'الشجرة',
-        desc: 'صيانة وحدة إنارة على المدخل الرئيسي',
+        desc: 'صيانة وحدة إنارة على المدخل الرئيسي بالقرب من المركز الصحي',
         status: 'قيد المعالجة',
         time: 'منذ ساعة'
       }
@@ -315,21 +362,18 @@
 
       marker.on('dragend', function(e) {
         const pos = e.target.getLatLng();
-        updateLocationData(pos.lat, pos.lng, 'تم تعديل الموقع يدوياً');
+        updateLocationData(pos.lat, pos.lng, 'تعديل يدوي');
       });
 
       map.on('click', function(e) {
-        updateLocationData(e.latlng.lat, e.latlng.lng, 'تم تحديد النقطة عبر اللمس');
+        updateLocationData(e.latlng.lat, e.latlng.lng, 'تحديد باللمس');
       });
 
       locateUser(false);
       renderAdminReports();
-
-      // تشغيل العداد والمراقبة كل ثانية
       setInterval(checkSessionExpiryLoop, 1000);
     };
 
-    // دورة مراقبة الـ 5 دقائق وتحديث العداد
     function checkSessionExpiryLoop() {
       const session = localStorage.getItem('sahl_admin_session_expiry');
       const badge = document.getElementById('session-countdown-badge');
@@ -339,13 +383,13 @@
       if (remaining <= 0) {
         localStorage.removeItem('sahl_admin_session_expiry');
         if (!document.getElementById('view-admin').classList.contains('hidden')) {
-          alert('انتهت مهلة الدخول المحددة (5 دقائق). تم تسجيل الخروج تلقائياً لأسباب أمنية.');
+          alert('انتهت مهلة الجلسة (5 دقائق). تم تسجيل الخروج تلقائياً.');
           adminLogout();
         }
       } else {
         const mins = Math.floor(remaining / 60000);
         const secs = Math.floor((remaining % 60000) / 1000);
-        badge.innerText = `نشط ${mins}:${secs < 10 ? '0' : ''}${secs} د`;
+        badge.innerText = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
       }
     }
 
@@ -367,10 +411,8 @@
       const p = document.getElementById('admin-pass').value.trim();
 
       if (u === ADMIN_CREDENTIALS.user && p === ADMIN_CREDENTIALS.pass) {
-        // تعيين صلاحية 5 دقائق وحفظها
         const expiryTimestamp = Date.now() + SESSION_DURATION_MS;
         localStorage.setItem('sahl_admin_session_expiry', expiryTimestamp.toString());
-
         closeLoginModal();
         switchView('admin');
         document.getElementById('admin-user').value = '';
@@ -385,7 +427,6 @@
       switchView('citizen');
     }
 
-    // خيارات الرؤية
     function openVisionModal() {
       document.getElementById('vision-modal').classList.remove('hidden');
     }
@@ -399,28 +440,23 @@
       if (mode === 'low-vision') {
         body.classList.add('low-vision-mode');
         localStorage.setItem('sahl_vision_mode', 'low-vision');
-        document.getElementById('opt-low-vision').classList.add('border-emerald-600', 'bg-emerald-50');
-        document.getElementById('opt-normal').classList.remove('border-emerald-600', 'bg-emerald-50');
       } else {
         body.classList.remove('low-vision-mode');
         localStorage.setItem('sahl_vision_mode', 'normal');
-        document.getElementById('opt-normal').classList.add('border-emerald-600', 'bg-emerald-50');
-        document.getElementById('opt-low-vision').classList.remove('border-emerald-600', 'bg-emerald-50');
       }
       closeVisionModal();
     }
 
-    // الـ GPS
     function locateUser(isManualClick) {
       const infoEl = document.getElementById('geo-info');
       const accEl = document.getElementById('geo-accuracy');
 
       if (!navigator.geolocation) {
-        infoEl.innerText = 'خدمة تحديد المواقع غير مدعومة';
+        infoEl.innerText = 'خدمة المواقع غير مدعومة';
         return;
       }
 
-      infoEl.innerText = '📡 جاري الاتصال بالأقمار الصناعية (GPS)...';
+      infoEl.innerText = 'جاري الاتصال بالأقمار الصناعية...';
 
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -429,27 +465,25 @@
           const accuracy = Math.round(pos.coords.accuracy);
 
           if (lat >= SAHL_BBOX.minLat && lat <= SAHL_BBOX.maxLat && lng >= SAHL_BBOX.minLng && lng <= SAHL_BBOX.maxLng) {
-            updateLocationData(lat, lng, `تم تثبيت موقعك بدقة عالية (نسبة الخطأ ±${accuracy}م)`);
+            updateLocationData(lat, lng, `±${accuracy}م دقة`);
             map.setView([lat, lng], 16);
 
             if (accuracyCircle) map.removeLayer(accuracyCircle);
             accuracyCircle = L.circle([lat, lng], {
               radius: accuracy,
-              color: '#059669',
+              color: '#0f172a',
               fillColor: '#10b981',
               fillOpacity: 0.15
             }).addTo(map);
           } else {
-            updateLocationData(lat, lng, `موقعك الحالي خارج سهل حوران (دقة ±${accuracy}م)`);
+            updateLocationData(lat, lng, `خارج النطاق (±${accuracy}م)`);
             map.setView([lat, lng], 15);
           }
         },
         (err) => {
-          if (isManualClick) {
-            alert('يرجى تفعيل إذن الموقع الجغرافي (GPS) في إعدادات الهاتف');
-          }
-          infoEl.innerText = 'يرجى تفعيل الـ GPS لتثبيت مكانك بدقة';
-          accEl.innerText = 'يمكنك أيضاً النقر المباشر على الخريطة لاختيار المكان';
+          if (isManualClick) alert('يرجى تفعيل صلاحية الموقع (GPS)');
+          infoEl.innerText = 'يرجى تفعيل GPS لتحديد مكانك';
+          accEl.innerText = 'يدوي';
         },
         { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
       );
@@ -464,7 +498,7 @@
       currentTown = nearestTown;
       highlightTownButton(nearestTown);
 
-      document.getElementById('geo-info').innerText = `📍 تم التعرف تلقائياً: ${nearestTown} (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+      document.getElementById('geo-info').innerText = `${nearestTown} (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
       document.getElementById('geo-accuracy').innerText = note;
     }
 
@@ -485,26 +519,26 @@
     function highlightTownButton(name) {
       document.querySelectorAll('.town-btn').forEach(b => {
         b.className = (b.innerText === name) 
-          ? 'town-btn py-2 text-xs font-bold border rounded-xl bg-stone-900 text-white shadow-sm' 
-          : 'town-btn py-2 text-xs font-bold border rounded-xl bg-stone-100 text-stone-700';
+          ? 'town-btn py-2 text-xs font-bold border rounded-xl bg-slate-900 text-white shadow-2xs transition' 
+          : 'town-btn py-2 text-xs font-bold border rounded-xl bg-slate-100 text-slate-700 transition';
       });
     }
 
     function manualFocusTown(name, lat, lng) {
-      updateLocationData(lat, lng, 'تم الاختيار اليدوي');
+      updateLocationData(lat, lng, 'اختيار يدوي');
       map.setView([lat, lng], 15);
     }
 
     function setCategory(btn, cat) {
       currentCategory = cat;
       document.querySelectorAll('.cat-btn').forEach(b => {
-        b.className = 'cat-btn p-2.5 text-xs font-bold border rounded-xl border-stone-200 text-right';
+        b.className = 'cat-btn p-3 text-xs font-bold border rounded-2xl border-slate-200 text-slate-700 hover:border-slate-300 text-right transition';
       });
-      btn.className = 'cat-btn p-2.5 text-xs font-bold border rounded-xl border-emerald-600 bg-emerald-50 text-emerald-950 text-right';
+      btn.className = 'cat-btn p-3 text-xs font-bold border rounded-2xl border-emerald-600 bg-emerald-50/70 text-emerald-950 text-right transition';
     }
 
     function submitReport() {
-      const desc = document.getElementById('report-desc').value || 'لا توجد ملاحظات إضافية';
+      const desc = document.getElementById('report-desc').value.trim() || 'لا توجد ملاحظات إضافية مسجلة';
       const code = 'SH-' + Math.floor(1000 + Math.random() * 9000);
 
       reports.unshift({
@@ -523,46 +557,102 @@
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
+    function filterAdminReports(town) {
+      currentAdminFilter = town;
+      document.querySelectorAll('.admin-filter-pill').forEach(btn => {
+        if (btn.dataset.filter === town) {
+          btn.className = 'admin-filter-pill px-3 py-1.5 rounded-xl bg-slate-900 text-white shrink-0 transition';
+        } else {
+          btn.className = 'admin-filter-pill px-3 py-1.5 rounded-xl bg-white text-slate-600 border border-slate-200 shrink-0 hover:bg-slate-50 transition';
+        }
+      });
+      renderAdminReports();
+    }
+
+    // بناء بطاقات العمليات بطراز أوروبي فخم
     function renderAdminReports() {
       const container = document.getElementById('admin-reports-list');
-      document.getElementById('reports-count').innerText = `${reports.length} بلاغات`;
+      
+      // حساب الإحصائيات الحية
+      document.getElementById('stat-total').innerText = reports.length;
+      document.getElementById('stat-pending').innerText = reports.filter(r => r.status !== 'تمت المعالجة').length;
+      document.getElementById('stat-resolved').innerText = reports.filter(r => r.status === 'تمت المعالجة').length;
+
       container.innerHTML = '';
 
-      reports.forEach((rep, idx) => {
-        const card = document.createElement('div');
-        card.className = 'bg-white p-3.5 rounded-xl border border-stone-200 shadow-sm space-y-2';
-        card.innerHTML = `
-          <div class="flex justify-between items-center">
-            <span class="font-mono font-bold text-xs bg-stone-100 px-2 py-0.5 rounded text-stone-800">${rep.id}</span>
-            <span class="text-[11px] text-stone-400 font-semibold">${rep.time}</span>
+      const filteredReports = currentAdminFilter === 'all' 
+        ? reports 
+        : reports.filter(r => r.town === currentAdminFilter);
+
+      if (filteredReports.length === 0) {
+        container.innerHTML = `
+          <div class="glass-card p-8 rounded-3xl text-center text-slate-400">
+            <p class="text-xs font-bold">لا توجد بلاغات مسجلة في هذا النطاق حالياً</p>
           </div>
-          <div class="text-xs font-bold text-stone-900">${rep.category} • منطقة ${rep.town}</div>
-          <p class="text-xs text-stone-600">${rep.desc}</p>
-          <div class="pt-1 flex justify-between items-center">
-            <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">${rep.status}</span>
-            <select onchange="reports[${idx}].status = this.value; renderAdminReports();" class="text-xs bg-stone-50 border border-stone-300 rounded-lg p-1 font-semibold">
-              <option value="تم الاستلام" ${rep.status==='تم الاستلام'?'selected':''}>تم الاستلام</option>
-              <option value="قيد المراجعة" ${rep.status==='قيد المراجعة'?'selected':''}>قيد المراجعة</option>
-              <option value="قيد المعالجة" ${rep.status==='قيد المعالجة'?'selected':''}>قيد المعالجة</option>
-              <option value="تمت المعالجة" ${rep.status==='تمت المعالجة'?'selected':''}>تمت المعالجة</option>
-            </select>
+        `;
+        return;
+      }
+
+      filteredReports.forEach((rep, idx) => {
+        const card = document.createElement('div');
+        card.className = 'glass-card p-4 rounded-3xl space-y-3 transition hover:border-slate-300';
+        
+        let statusBadge = 'bg-amber-50 text-amber-800 border-amber-200/80';
+        if (rep.status === 'تم الاستلام') statusBadge = 'bg-slate-100 text-slate-800 border-slate-200';
+        if (rep.status === 'قيد المراجعة') statusBadge = 'bg-blue-50 text-blue-800 border-blue-200/80';
+        if (rep.status === 'قيد المعالجة') statusBadge = 'bg-indigo-50 text-indigo-800 border-indigo-200/80';
+        if (rep.status === 'تمت المعالجة') statusBadge = 'bg-emerald-50 text-emerald-800 border-emerald-200/80';
+
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div class="flex items-center gap-2">
+              <span class="font-mono-code font-bold text-xs bg-slate-900 text-white px-2.5 py-1 rounded-xl tracking-wider shadow-2xs">${rep.id}</span>
+              <span class="text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200">${rep.town}</span>
+            </div>
+            <span class="text-[11px] font-medium text-slate-400 font-mono-code">${rep.time}</span>
+          </div>
+
+          <div>
+            <div class="text-[13px] font-extrabold text-slate-900 leading-snug">${rep.category}</div>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed bg-slate-50/60 p-2.5 rounded-xl border border-slate-100 font-normal">${rep.desc}</p>
+          </div>
+
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border ${statusBadge}">${rep.status}</span>
+            
+            <div class="relative">
+              <select onchange="updateReportStatus('${rep.id}', this.value)" class="text-xs bg-slate-50 border border-slate-200 text-slate-800 font-bold rounded-xl py-1.5 px-3 outline-none focus:border-slate-900 cursor-pointer">
+                <option value="تم الاستلام" ${rep.status==='تم الاستلام'?'selected':''}>تم الاستلام</option>
+                <option value="قيد المراجعة" ${rep.status==='قيد المراجعة'?'selected':''}>قيد المراجعة</option>
+                <option value="قيد المعالجة" ${rep.status==='قيد المعالجة'?'selected':''}>قيد المعالجة</option>
+                <option value="تمت المعالجة" ${rep.status==='تمت المعالجة'?'selected':''}>تمت المعالجة ✓</option>
+              </select>
+            </div>
           </div>
         `;
         container.appendChild(card);
       });
     }
 
+    function updateReportStatus(reportId, newStatus) {
+      const target = reports.find(r => r.id === reportId);
+      if (target) {
+        target.status = newStatus;
+        renderAdminReports();
+      }
+    }
+
     function switchView(view) {
       if (view === 'citizen') {
         document.getElementById('view-citizen').classList.remove('hidden');
         document.getElementById('view-admin').classList.add('hidden');
-        document.getElementById('btn-citizen').className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-700 text-white';
-        document.getElementById('btn-admin').className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-stone-100 text-stone-700';
+        document.getElementById('btn-citizen').className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-2xs transition';
+        document.getElementById('btn-admin').className = 'px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1';
       } else {
         document.getElementById('view-citizen').classList.add('hidden');
         document.getElementById('view-admin').classList.remove('hidden');
-        document.getElementById('btn-admin').className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-700 text-white';
-        document.getElementById('btn-citizen').className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-stone-100 text-stone-700';
+        document.getElementById('btn-admin').className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-2xs transition flex items-center gap-1';
+        document.getElementById('btn-citizen').className = 'px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition';
       }
     }
 
