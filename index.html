@@ -360,11 +360,11 @@
     };
 
     const AI_CATEGORY_PATTERNS = {
-      'تراكم النفايات': ['trash', 'garbage', 'waste', 'bin', 'ashcan', 'dumpster', 'litter', 'rubbish', 'refuse', 'barrel', 'container'],
-      'إنارة الشوارع': ['lamp', 'streetlight', 'traffic light', 'lantern', 'spotlight', 'pole', 'post', 'bulb', 'lighting'],
-      'هبوطات وتلف الطرق': ['street', 'road', 'asphalt', 'pothole', 'crack', 'pavement', 'sidewalk', 'curb', 'hole'],
-      'تصريف مياه الأمطار': ['water', 'puddle', 'flood', 'drain', 'sewer', 'manhole', 'gutter', 'mud', 'pipe'],
-      'الأرصفة والمرافق': ['tree', 'park', 'bench', 'sidewalk', 'fence', 'grass', 'garden']
+      'تراكم النفايات': ['trash', 'garbage', 'waste', 'bin', 'ashcan', 'dumpster', 'litter', 'rubbish', 'refuse', 'barrel', 'container', 'crate'],
+      'إنارة الشوارع': ['lamp', 'streetlight', 'traffic light', 'lantern', 'spotlight', 'pole', 'post', 'bulb', 'lighting', 'light'],
+      'هبوطات وتلف الطرق': ['street', 'road', 'asphalt', 'pothole', 'crack', 'pavement', 'sidewalk', 'curb', 'hole', 'gravel'],
+      'تصريف مياه الأمطار': ['water', 'puddle', 'flood', 'drain', 'sewer', 'manhole', 'gutter', 'mud', 'pipe', 'stream'],
+      'الأرصفة والمرافق': ['tree', 'park', 'bench', 'sidewalk', 'fence', 'grass', 'garden', 'plant']
     };
 
     const FORBIDDEN_OBJECTS = [
@@ -501,7 +501,7 @@
               for (let pred of predictions) {
                 const label = pred.className.toLowerCase();
                 for (let validKw of validCategoryKeywords) {
-                  if (label.includes(validKw) && pred.probability > 0.18) {
+                  if (label.includes(validKw) && pred.probability > 0.08) {
                     isMatchingCategory = true;
                     break;
                   }
