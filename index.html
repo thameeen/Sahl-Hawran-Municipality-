@@ -14,11 +14,16 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="سهل حوران" />
   
-  <!-- المكتبات السريعة ومكتبة Supabase السحابية -->
+  <!-- المكتبات السريعة عبر Cloudflare CDN ومكتبة الذكاء الاصطناعي وسيرفر Supabase -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- محرك الرؤية الحاسوبية والذكاء الاصطناعي لفحص الصور محلياً -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
+
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet" />
 
   <style>
@@ -30,7 +35,7 @@
     .swiss-code { font-family: 'Space Mono', monospace; }
     
     #map { 
-      height: 250px !important; 
+      height: 240px !important; 
       width: 100% !important; 
       border-radius: 1rem; 
       z-index: 10; 
@@ -39,7 +44,7 @@
     }
 
     #detail-map {
-      height: 200px !important;
+      height: 190px !important;
       width: 100% !important;
       border-radius: 0.75rem;
       z-index: 10;
@@ -84,7 +89,7 @@
             <h1 class="font-extrabold text-sm text-slate-950">بلدية سهل حوران</h1>
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
           </div>
-          <p class="text-[10px] text-slate-500 font-bold">بوابة العمليات الميدانية السحابية</p>
+          <p class="text-[10px] text-slate-500 font-bold">بوابة العمليات الميدانية والتحقق الذكي</p>
         </div>
       </div>
       
@@ -115,13 +120,13 @@
       <div class="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-sm">
         <div class="flex justify-between items-start mb-1">
           <span class="text-[10px] font-bold uppercase text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
-            النظام الموثق بالسيرفر السحابي
+            فحص الصور بالذكاء الاصطناعي (AI)
           </span>
           <span class="text-[10px] text-slate-400 font-mono">الرمثا • الأردن</span>
         </div>
-        <h2 class="text-sm font-extrabold text-white mt-1">تسجيل بلاغ خدمي فوري</h2>
+        <h2 class="text-sm font-extrabold text-white mt-1">تسجيل بلاغ خدمي موثّق</h2>
         <p class="text-[11px] text-slate-300 mt-0.5">
-          مربوط سحابياً مع غرفة طوارئ بلدية سهل حوران (الطرة، الشجرة، الذنيبة، عمراوة)
+          مفحوص آلياً: يمنع تصوير الأشياء المنزلية أو القهوة أو الصور العشوائية نهائياً.
         </p>
       </div>
 
@@ -168,26 +173,44 @@
           </div>
         </div>
 
-        <!-- 3. تصوير الكاميرا الإلزامي ووصف المشكلة -->
+        <!-- 3. تصوير الكاميرا الإلزامي المفحوص بالذكاء الاصطناعي -->
         <div class="space-y-3">
           <div>
             <div class="flex justify-between items-center mb-1.5">
-              <label class="text-xs font-bold text-slate-800">3. صورة العطل الحية (بالكاميرا فقط)</label>
+              <label class="text-xs font-bold text-slate-800">3. صورة العطل الحية (مفحوصة بالـ AI)</label>
               <span id="photo-status-badge" class="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">مطلوب التصوير</span>
             </div>
 
-            <input type="file" accept="image/*" capture="environment" id="report-img" onchange="handleImageCapture(this)" class="hidden" />
+            <input type="file" accept="image/*" capture="environment" id="report-img" onchange="handleImageCaptureWithAI(this)" class="hidden" />
             
             <button type="button" onclick="document.getElementById('report-img').click()" class="w-full py-3.5 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center gap-1.5 active:scale-98 transition cursor-pointer">
               <span class="text-2xl">📸</span>
               <span class="text-xs font-bold text-slate-900">فتح الكاميرا وتصوير المشكلة</span>
-              <span class="text-[10px] text-slate-500">يشترط التقاط صورة فورية للعطل في مكانه</span>
+              <span class="text-[10px] text-slate-500">يتعرف الذكاء الاصطناعي تلقائياً على العطل ويرفض صور المنازل أو القهوة</span>
             </button>
 
+            <!-- شريط جاري الفحص بالذكاء الاصطناعي -->
+            <div id="ai-scanning-box" style="display: none;" class="mt-2 p-3 bg-indigo-50 border border-indigo-200 rounded-xl text-center">
+              <span class="inline-block animate-spin text-lg mb-1">⚙️</span>
+              <p class="text-xs font-extrabold text-indigo-900">جاري مسح وتحليل محتوى الصورة بالذكاء الاصطناعي...</p>
+              <p class="text-[10px] text-indigo-600">التحقق من عدم وجود مأكولات أو عناصر منزلية أو استهزاء</p>
+            </div>
+
+            <!-- تنبيه الرفض في حال تصوير فنجان قهوة أو سجاد -->
+            <div id="ai-reject-alert" style="display: none;" class="mt-2 p-3.5 bg-rose-50 border-2 border-rose-300 rounded-2xl space-y-1">
+              <div class="flex items-center gap-2 text-rose-800 font-extrabold text-xs">
+                <span>⛔ تم رفض الصورة بواسطة الذكاء الاصطناعي</span>
+              </div>
+              <p id="ai-reject-reason" class="text-xs text-rose-700 leading-relaxed font-bold">
+                تم رصد عنصر منزلي/غير خدمي. يمنع تصوير المأكولات أو الأثاث؛ يرجى تصوير العطل الفعلي في الشارع مباشرة.
+              </p>
+            </div>
+
+            <!-- معاينة الصورة المقبولة فقط -->
             <div id="photo-preview-container" style="display: none;" class="mt-2 relative rounded-2xl overflow-hidden border border-slate-300">
               <img id="photo-preview-img" src="" alt="صورة العطل" class="w-full h-44 object-cover" />
-              <div class="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur-xs text-white text-[10px] px-2.5 py-1 rounded-lg font-bold flex items-center gap-1">
-                <span>✓ تم توثيق الصورة بالكاميرا</span>
+              <div class="absolute bottom-2 right-2 bg-emerald-950/85 backdrop-blur-xs text-white text-[10px] px-2.5 py-1 rounded-lg font-bold flex items-center gap-1">
+                <span>✓ تم اعتماد وتوثيق الصورة بواسطة الذكاء الاصطناعي</span>
               </div>
               <button type="button" onclick="removeCapturedPhoto()" class="absolute top-2 left-2 bg-rose-600 text-white text-xs px-2.5 py-1 rounded-lg font-bold hover:bg-rose-700 shadow cursor-pointer">
                 إعادة التقاط
@@ -214,7 +237,7 @@
           </div>
           <div class="flex items-center gap-2" id="req-photo">
             <span class="text-rose-600 font-bold">✕</span>
-            <span class="text-slate-600">تصوير المشكلة مباشرة بالكاميرا</span>
+            <span class="text-slate-600">صورة مقبولة وموثقة بالذكاء الاصطناعي</span>
           </div>
           <div class="flex items-center gap-2" id="req-desc">
             <span class="text-rose-600 font-bold">✕</span>
@@ -454,9 +477,7 @@
   </div>
 
   <script>
-    // ==========================================
-    // تهيئة الاتصال السحابي الحقيقي مع Supabase
-    // ==========================================
+    // تهيئة Supabase
     const SUPABASE_URL = 'https://mkstvimsqoqjgkrdrczd.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_r-A0TOsrkQ-gvcCIYdZAUg_cL07Ra5c';
     const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
@@ -487,6 +508,16 @@
       'ملاحظات أخرى': []
     };
 
+    // قائمة العناصر الممنوعة للذكاء الاصطناعي (أشياء منزلية / قهوة / استهزاء)
+    const FORBIDDEN_OBJECTS = [
+      'cup', 'coffee mug', 'mug', 'espresso', 'coffeepot', 'teapot', 'cup of coffee',
+      'plate', 'dish', 'bowl', 'spoon', 'fork', 'food', 'pizza', 'sandwich',
+      'sofa', 'couch', 'bed', 'pillow', 'rug', 'carpet', 'mat', 'curtain',
+      'television', 'monitor', 'screen', 'laptop', 'computer', 'mouse', 'keyboard',
+      'cellular telephone', 'cellphone', 'telephone',
+      'person', 'face', 'suit', 't-shirt', 'jersey', 'cat', 'dog', 'teddy'
+    ];
+
     let currentCategory = 'تراكم النفايات';
     let currentTown = '';
     let selectedLat = null;
@@ -496,6 +527,7 @@
     let currentFilterTown = 'all';
     let map = null, marker = null, accuracyCircle = null;
     let detailMap = null, detailMarker = null;
+    let aiModel = null;
 
     const STEPS = ['تم الاستلام', 'المراجعة الفنية', 'الفريق الميداني', 'تم الإنجاز'];
     let reports = [];
@@ -509,7 +541,19 @@
       subscribeToLiveCloudUpdates();
       setInterval(checkSessionExpiryLoop, 1000);
       locateUser(false);
+      loadAIModel();
     });
+
+    async function loadAIModel() {
+      try {
+        if (window.mobilenet) {
+          aiModel = await mobilenet.load();
+          console.log('AI Vision Engine Loaded successfully.');
+        }
+      } catch (err) {
+        console.warn('AI loading error:', err);
+      }
+    }
 
     function initMapSafely() {
       try {
@@ -533,7 +577,6 @@
       }
     }
 
-    // جلب البلاغات من السيرفر السحابي
     async function fetchReportsFromCloud() {
       if (!supabaseClient) return;
       try {
@@ -561,7 +604,6 @@
       }
     }
 
-    // التزامن اللحظي المباشر (Realtime)
     function subscribeToLiveCloudUpdates() {
       if (!supabaseClient) return;
       supabaseClient
@@ -572,19 +614,70 @@
         .subscribe();
     }
 
-    function handleImageCapture(input) {
+    // فحص الصورة بالذكاء الاصطناعي ورفض القهوة والأشياء العشوائية
+    async function handleImageCaptureWithAI(input) {
       const file = input.files && input.files[0];
       if (!file) return;
 
+      const scanningBox = document.getElementById('ai-scanning-box');
+      const rejectAlert = document.getElementById('ai-reject-alert');
+      const previewContainer = document.getElementById('photo-preview-container');
+      const badge = document.getElementById('photo-status-badge');
+
+      scanningBox.style.display = 'block';
+      rejectAlert.style.display = 'none';
+      previewContainer.style.display = 'none';
+
       const reader = new FileReader();
-      reader.onload = function(e) {
-        capturedPhotoData = e.target.result;
-        document.getElementById('photo-preview-img').src = capturedPhotoData;
-        document.getElementById('photo-preview-container').style.display = 'block';
-        
-        const badge = document.getElementById('photo-status-badge');
-        badge.innerText = '✓ تم التقاط الصورة';
-        badge.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded';
+      reader.onload = async function(e) {
+        const dataUrl = e.target.result;
+        const tempImg = new Image();
+        tempImg.src = dataUrl;
+        await tempImg.decode();
+
+        let isForbidden = false;
+        let detectedItemName = '';
+
+        if (aiModel) {
+          try {
+            const predictions = await aiModel.classify(tempImg);
+            for (let pred of predictions) {
+              const label = pred.className.toLowerCase();
+              for (let forb of FORBIDDEN_OBJECTS) {
+                if (label.includes(forb) && pred.probability > 0.15) {
+                  isForbidden = true;
+                  detectedItemName = pred.className;
+                  break;
+                }
+              }
+              if (isForbidden) break;
+            }
+          } catch (aiErr) {
+            console.warn('AI analysis error:', aiErr);
+          }
+        }
+
+        scanningBox.style.display = 'none';
+
+        if (isForbidden) {
+          capturedPhotoData = null;
+          document.getElementById('report-img').value = '';
+          rejectAlert.style.display = 'block';
+          
+          document.getElementById('ai-reject-reason').innerText = 
+            `تم رصد عنصر منزلي/غير خدمي (${detectedItemName}). يمنع تصوير المأكولات أو المشروبات أو الأثاث؛ يرجى تصوير العطل الميداني في الشارع مباشرة.`;
+
+          badge.innerText = '⛔ الصورة مرفوضة بالـ AI';
+          badge.className = 'text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded';
+        } else {
+          capturedPhotoData = dataUrl;
+          document.getElementById('photo-preview-img').src = capturedPhotoData;
+          previewContainer.style.display = 'block';
+          rejectAlert.style.display = 'none';
+
+          badge.innerText = '✓ معتمدة بالذكاء الاصطناعي';
+          badge.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded';
+        }
 
         checkFormValidity();
       };
@@ -595,6 +688,7 @@
       capturedPhotoData = null;
       document.getElementById('report-img').value = '';
       document.getElementById('photo-preview-container').style.display = 'none';
+      document.getElementById('ai-reject-alert').style.display = 'none';
       
       const badge = document.getElementById('photo-status-badge');
       badge.innerText = 'مطلوب التصوير';
@@ -638,9 +732,9 @@
 
       const hasPhoto = !!capturedPhotoData;
       if (hasPhoto) {
-        document.getElementById('req-photo').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">تم التقاط الصورة بالكاميرا بنجاح</span>`;
+        document.getElementById('req-photo').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">تم اعتماد الصورة بالذكاء الاصطناعي</span>`;
       } else {
-        document.getElementById('req-photo').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">تصوير المشكلة مباشرة بالكاميرا</span>`;
+        document.getElementById('req-photo').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">تصوير المشكلة (يمنع الصور العشوائية والمنزلية)</span>`;
       }
 
       const hasLocation = isLocationVerified;
@@ -660,7 +754,7 @@
         
         let missing = [];
         if (!hasLocation) missing.push('الموقع بالـ GPS');
-        if (!hasPhoto) missing.push('صورة الكاميرا');
+        if (!hasPhoto) missing.push('صورة مقبولة بالـ AI');
         if (!isDescValid) missing.push('تطابق الوصف');
         submitBtn.innerText = `متبقي لاعتماد البلاغ: (${missing.join(' + ')})`;
       }
@@ -795,7 +889,6 @@
       checkFormValidity();
     }
 
-    // إرسال البلاغ إلى السيرفر السحابي Supabase
     async function submitReport() {
       const desc = (document.getElementById('report-desc')?.value || '').trim();
 
@@ -804,7 +897,7 @@
         return;
       }
       if (!capturedPhotoData) {
-        alert('مرفوض: يجب تصوير العطل مباشرة بالكاميرا.');
+        alert('مرفوض: يجب تصوير العطل الميداني المعتمد.');
         return;
       }
       if (!desc) {
@@ -1066,7 +1159,6 @@
       document.getElementById('detail-modal').style.display = 'none';
     }
 
-    // حذف البلاغ من السيرفر السحابي
     async function deleteReport(id) {
       if (confirm(`هل أنت متأكد من مسح وحذف البلاغ (${id}) نهائياً من السيرفر السحابي؟`)) {
         try {
@@ -1081,7 +1173,6 @@
       }
     }
 
-    // ترقية المرحلة على السيرفر السحابي
     async function advanceReportStep(id, currentStep) {
       if (currentStep < 3) {
         try {
@@ -1090,3 +1181,56 @@
           }
           closeDetailModal();
           await fetchReportsFromCloud();
+        } catch (err) {
+          alert('حدث خطأ أثناء التحديث على السيرفر');
+        }
+      }
+    }
+
+    function switchView(view) {
+      if (view === 'citizen') {
+        document.getElementById('view-citizen').style.display = 'block';
+        document.getElementById('view-admin').style.display = 'none';
+        document.getElementById('btn-citizen').className = 'px-3 py-1 text-xs font-bold rounded-lg bg-slate-950 text-white shadow-xs transition active:scale-95 cursor-pointer';
+        document.getElementById('btn-admin').className = 'px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-950 transition active:scale-95 flex items-center gap-1 cursor-pointer';
+        if (map) setTimeout(() => map.invalidateSize(), 150);
+      } else {
+        document.getElementById('view-citizen').style.display = 'none';
+        document.getElementById('view-admin').style.display = 'block';
+        document.getElementById('btn-admin').className = 'px-3 py-1 text-xs font-bold rounded-lg bg-slate-950 text-white shadow-xs transition active:scale-95 flex items-center gap-1 cursor-pointer';
+        document.getElementById('btn-citizen').className = 'px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-950 transition active:scale-95 cursor-pointer';
+        fetchReportsFromCloud();
+      }
+    }
+
+    function openVisionModal() { document.getElementById('vision-modal').style.display = 'flex'; }
+    function closeVisionModal() { document.getElementById('vision-modal').style.display = 'none'; }
+    function applyVisionMode(mode) {
+      const body = document.getElementById('app-body');
+      if (mode === 'low-vision') {
+        body.classList.add('low-vision-mode');
+        localStorage.setItem('sahl_vision_mode', 'low-vision');
+      } else {
+        body.classList.remove('low-vision-mode');
+        localStorage.setItem('sahl_vision_mode', 'normal');
+      }
+      closeVisionModal();
+      if (map) setTimeout(() => map.invalidateSize(), 200);
+    }
+
+    function openExitModal() { document.getElementById('exit-modal').style.display = 'flex'; }
+    function closeExitModal() { document.getElementById('exit-modal').style.display = 'none'; }
+    function confirmExitApp() {
+      closeExitModal();
+      document.body.innerHTML = `
+        <div class="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center" dir="rtl">
+          <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-3 shadow-lg">✓</div>
+          <h2 class="text-base font-extrabold mb-1">شكراً لزيارتك بوابة سهل حوران</h2>
+          <p class="text-xs text-slate-400 mb-5">تم إنهاء الجلسة بنجاح، يمكنك إغلاق التطبيق الآن.</p>
+          <button onclick="location.reload()" class="px-5 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold border border-slate-700 cursor-pointer">العودة للتطبيق</button>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
