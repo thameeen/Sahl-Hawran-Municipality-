@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <!-- إجبار المتصفح على سحب التحديث الجديد فوراً -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -27,24 +26,42 @@
     .swiss-code { font-family: 'Space Mono', monospace; }
     #map { height: 260px; width: 100%; border-radius: 1rem; z-index: 10; border: 1px solid #e2e8f0; }
     
-    /* النمط السويسري الدقيق */
     .swiss-border { border: 1px solid #e2e8f0; }
     .swiss-shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03); }
     
-    /* وضع تعزيز القراءة لضعاف البصر */
+    /* =========================================
+       نمط ضعاف النظر الفائق (Low Vision Mode)
+       ========================================= */
     body.low-vision-mode {
-      font-size: 125% !important;
+      font-size: 135% !important;
       background-color: #ffffff !important;
       color: #000000 !important;
     }
     body.low-vision-mode button, 
+    body.low-vision-mode select, 
     body.low-vision-mode input, 
     body.low-vision-mode textarea {
-      border-width: 3px !important;
-      border-color: #000000 !important;
+      font-size: 115% !important;
+      border: 3px solid #000000 !important;
       font-weight: 900 !important;
     }
-    
+    body.low-vision-mode .cat-btn,
+    body.low-vision-mode .town-btn {
+      min-height: 60px !important;
+      font-size: 1.15rem !important;
+      font-weight: 900 !important;
+      border: 3px solid #000000 !important;
+    }
+    body.low-vision-mode #map {
+      height: 320px !important;
+      border: 3px solid #000000 !important;
+    }
+    body.low-vision-mode label {
+      font-size: 1.1rem !important;
+      font-weight: 900 !important;
+      color: #000000 !important;
+    }
+
     .pulse-swiss {
       animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
     }
@@ -55,13 +72,12 @@
     }
   </style>
 </head>
-<body id="app-body" class="text-slate-900 pb-28 antialiased selection:bg-slate-900 selection:text-white">
+<body id="app-body" class="text-slate-900 pb-28 antialiased selection:bg-slate-900 selection:text-white transition-all duration-150">
 
-  <!-- الترويسة السويسرية الرسمية -->
+  <!-- الترويسة الرئيسية -->
   <header class="bg-white sticky top-0 z-40 border-b border-slate-200/90 swiss-shadow">
     <div class="max-w-md mx-auto px-4 py-2.5 flex justify-between items-center">
       
-      <!-- شعار وهوية البلدية -->
       <div class="flex items-center gap-2.5">
         <div class="w-8 h-8 rounded-lg bg-slate-950 text-white flex items-center justify-center font-black text-sm tracking-tighter">
           SH
@@ -75,9 +91,10 @@
         </div>
       </div>
       
-      <!-- مفتاح التبديل المركزي (Swiss Segmented Control) -->
+      <!-- أدوات التنقل العلوية -->
       <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
-        <button onclick="openVisionModal()" class="w-7 h-7 flex items-center justify-center text-xs font-bold text-slate-700 hover:text-slate-950">
+        <!-- زر خيارات النظر -->
+        <button onclick="openVisionModal()" title="خيارات النظر والقراءة" class="w-7 h-7 flex items-center justify-center text-xs font-bold text-slate-700 hover:text-slate-950">
           👁️
         </button>
         <button onclick="switchView('citizen')" id="btn-citizen" class="px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-950 shadow-xs transition">
@@ -86,6 +103,10 @@
         <button onclick="handleAdminTabClick()" id="btn-admin" class="px-3 py-1 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-950 transition flex items-center gap-1">
           <span>الإدارة</span>
           <span class="text-[10px]">🔒</span>
+        </button>
+        <!-- زر خروج مباشر من التطبيق -->
+        <button onclick="openExitModal()" title="خروج من التطبيق" class="w-7 h-7 flex items-center justify-center text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg">
+          ✕
         </button>
       </div>
     </div>
@@ -96,7 +117,6 @@
     <!-- ================== واجهة المواطن ================== -->
     <div id="view-citizen" class="space-y-3.5">
       
-      <!-- شريط الإعلان السويسري الرزين -->
       <div class="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800">
         <div class="flex justify-between items-start mb-1">
           <span class="text-[10px] font-bold tracking-wider uppercase text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/60">
@@ -113,7 +133,7 @@
       <!-- استمارة البلاغ -->
       <div class="bg-white p-4 rounded-2xl swiss-border swiss-shadow space-y-4">
         
-        <!-- 1. التصنيف بنمط سويسري منظم -->
+        <!-- 1. التصنيف -->
         <div>
           <label class="block text-xs font-bold text-slate-800 mb-2">1. تصنيف المشكلة</label>
           <div class="grid grid-cols-2 gap-2" id="category-selector">
@@ -174,7 +194,7 @@
       </div>
     </div>
 
-    <!-- ================== واجهة الإدارة السويسرية (Swiss Ops Dashboard) ================== -->
+    <!-- ================== واجهة الإدارة السويسرية ================== -->
     <div id="view-admin" class="hidden space-y-3.5">
       
       <!-- لوحة التحكم العلوية -->
@@ -189,7 +209,7 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <!-- عداد الأمان التنازلي السويسري -->
+            <!-- عداد الأمان 5 دقائق -->
             <div class="bg-slate-900 text-emerald-400 px-2.5 py-1 rounded-lg text-[10px] swiss-code font-bold border border-slate-800 flex items-center gap-1">
               <span>SEC:</span>
               <span id="session-countdown-badge">05:00</span>
@@ -201,7 +221,7 @@
           </div>
         </div>
 
-        <!-- أرقام الإحصائيات (Metrics) -->
+        <!-- أرقام الإحصائيات -->
         <div class="grid grid-cols-3 gap-2 mt-2.5">
           <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 text-center">
             <span class="text-[9px] font-bold text-slate-400 block">إجمالي الوارد</span>
@@ -218,7 +238,7 @@
         </div>
       </div>
 
-      <!-- شريط البحث والفلترة السويسرية -->
+      <!-- شريط البحث والفلترة -->
       <div class="space-y-1.5">
         <input 
           type="text" 
@@ -237,7 +257,6 @@
         </div>
       </div>
 
-      <!-- قائمة البلاغات التنفيذية مع المخطط المرحلي السويسري -->
       <div id="admin-reports-list" class="space-y-3">
         <!-- تملأ برمجياً -->
       </div>
@@ -245,7 +264,64 @@
 
   </main>
 
-  <!-- نافذة تسجيل الدخول السويسرية المؤقتة -->
+  <!-- ================== نافذة تأكيد الخروج النهائي من التطبيق ================== -->
+  <div id="exit-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl p-5 max-w-xs w-full border border-slate-200 shadow-2xl space-y-4 text-center">
+      <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
+        🚪
+      </div>
+      <div>
+        <h3 class="font-extrabold text-slate-950 text-sm">مغادرة المنصة</h3>
+        <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+          هل تريد تسجيل الخروج النهائي ومغادرة تطبيق بلدية سهل حوران؟
+        </p>
+      </div>
+
+      <div class="flex gap-2 pt-1">
+        <button onclick="closeExitModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition">
+          البقاء بالتطبيق
+        </button>
+        <button onclick="confirmExitApp()" class="w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
+          تأكيد الخروج
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================== نافذة خيارات النظر (عادي vs ضعاف النظر بحجم كبير) ================== -->
+  <div id="vision-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-2xl p-5 max-w-xs w-full border border-slate-200 shadow-2xl space-y-3.5">
+      <div class="text-center">
+        <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center mx-auto text-base mb-1.5 font-bold">
+          👁️
+        </div>
+        <h3 class="font-extrabold text-slate-950 text-sm">خيارات الرؤية ووضوح الخط</h3>
+        <p class="text-[11px] text-slate-500">اختر النمط الأنسب لراحتك</p>
+      </div>
+
+      <div class="space-y-2">
+        <!-- الخيار 1: عادي -->
+        <button onclick="applyVisionMode('normal')" class="w-full p-3 text-right border-2 rounded-xl transition flex flex-col hover:border-slate-400 bg-slate-50 border-slate-200" id="opt-normal">
+          <span class="text-xs font-bold text-slate-950">🌟 1. وضع الأشخاص العادي (طبيعي)</span>
+          <span class="text-[10px] text-slate-500 mt-0.5">حجم خط متوازن ومعياري لكافة الشاشات</span>
+        </button>
+
+        <!-- الخيار 2: ضعاف النظر (حجم كبير) -->
+        <button onclick="applyVisionMode('low-vision')" class="w-full p-3.5 text-right border-2 rounded-xl transition flex flex-col hover:border-slate-950 bg-white border-slate-900 shadow-xs" id="opt-low-vision">
+          <span class="text-xs font-black text-slate-950">🔍 2. وضع ضعاف النظر (حجم كبير جداً)</span>
+          <span class="text-[10px] text-slate-700 font-bold mt-1 leading-snug">
+            خطوط ضخمة، أزرار عريضة وتباين عالي لتسهيل القراءة لكبار السن وضعاف البصر
+          </span>
+        </button>
+      </div>
+
+      <button onclick="closeVisionModal()" class="w-full py-2 bg-slate-950 text-white rounded-xl text-xs font-bold">
+        إغلاق
+      </button>
+    </div>
+  </div>
+
+  <!-- نافذة تسجيل الدخول للمشرف -->
   <div id="login-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 flex items-center justify-center p-4 backdrop-blur-xs">
     <div class="bg-white rounded-2xl p-5 max-w-xs w-full border border-slate-200 shadow-xl space-y-3.5">
       <div class="text-center">
@@ -253,7 +329,7 @@
           🛡️
         </div>
         <h3 class="font-extrabold text-slate-950 text-sm">تسجيل دخول المشرف</h3>
-        <p class="text-[10px] text-slate-500">جلسة مشفرة لمدة 5 دقائق لبلدية سهل حوران</p>
+        <p class="text-[10px] text-slate-500">جلسة مؤمّنة تدوم 5 دقائق</p>
       </div>
 
       <div class="space-y-2">
@@ -265,7 +341,7 @@
           <label class="block text-[10px] font-bold text-slate-700 mb-0.5">كلمة المرور</label>
           <input type="password" id="admin-pass" placeholder="••••••••" class="w-full text-xs p-2 bg-slate-50 border border-slate-300 rounded-lg outline-none font-mono" />
         </div>
-        <p id="login-err" class="text-rose-600 text-[10px] font-bold hidden text-center">البيانات المدخلة غير صحيحة</p>
+        <p id="login-err" class="text-rose-600 text-[10px] font-bold hidden text-center">البيانات غير صحيحة</p>
       </div>
 
       <div class="flex gap-2 pt-1">
@@ -279,28 +355,7 @@
     </div>
   </div>
 
-  <!-- نافذة خيارات الرؤية -->
-  <div id="vision-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 flex items-center justify-center p-4 backdrop-blur-xs">
-    <div class="bg-white rounded-2xl p-5 max-w-xs w-full border border-slate-200 shadow-xl space-y-3">
-      <h3 class="font-extrabold text-slate-950 text-sm text-center">خيارات العرض والقراءة</h3>
-      
-      <div class="space-y-1.5">
-        <button onclick="applyVisionMode('normal')" class="w-full p-2.5 text-right border rounded-xl border-slate-300 bg-slate-50 text-xs font-bold text-slate-900">
-          🌟 العرض القياسي الطبيعي
-        </button>
-        <button onclick="applyVisionMode('low-vision')" class="w-full p-2.5 text-right border-2 rounded-xl border-slate-900 bg-white text-xs font-black text-slate-950">
-          🔍 نمط تعزيز الرؤية (لضعاف البصر)
-        </button>
-      </div>
-
-      <button onclick="closeVisionModal()" class="w-full py-2 bg-slate-900 text-white rounded-lg text-xs font-bold">
-        إغلاق
-      </button>
-    </div>
-  </div>
-
   <script>
-    // بيانات الدخول المشفرة في الجلسة
     const ADMIN_CREDENTIALS = { user: 'admin', pass: 'sahl2026' };
     const SESSION_DURATION_MS = 5 * 60 * 1000;
 
@@ -319,7 +374,6 @@
     let currentFilterTown = 'all';
     let map, marker, accuracyCircle;
 
-    // المراحل الأربعة السويسرية للبلاغ
     const STEPS = ['تم الاستلام', 'المراجعة الفنية', 'الفريق الميداني', 'تم الإنجاز'];
 
     let reports = [
@@ -328,12 +382,16 @@
         category: 'إنارة الشوارع',
         town: 'الشجرة',
         desc: 'صيانة وحدة إنارة ومحول بالشارع الحيوي قرب المدرسة',
-        stepIndex: 2, // في مرحلة الفريق الميداني
+        stepIndex: 2,
         time: 'منذ 45 دقيقة'
       }
     ];
 
     window.onload = function() {
+      // إعداد نظام التنقل وزر الرجوع للأندرويد
+      setupNavigationHistory();
+
+      // فحص خيار النظر المخزن
       const savedMode = localStorage.getItem('sahl_vision_mode');
       if (savedMode === 'low-vision') applyVisionMode('low-vision');
 
@@ -355,6 +413,97 @@
       setInterval(checkSessionExpiryLoop, 1000);
     };
 
+    // ==========================================
+    // دعم زر الرجوع في الأندرويد وخروج التطبيق
+    // ==========================================
+    function setupNavigationHistory() {
+      history.replaceState({ screen: 'citizen' }, '');
+
+      window.addEventListener('popstate', (e) => {
+        // إذا كان مودال الخروج مفتوحاً، أغلقه
+        if (!document.getElementById('exit-modal').classList.contains('hidden')) {
+          closeExitModal();
+          return;
+        }
+        // إذا كانت نافذة النظر مفتوحة، أغلقها
+        if (!document.getElementById('vision-modal').classList.contains('hidden')) {
+          closeVisionModal();
+          return;
+        }
+        // إذا كانت نافذة تسجيل الدخول مفتوحة، أغلقها
+        if (!document.getElementById('login-modal').classList.contains('hidden')) {
+          closeLoginModal();
+          return;
+        }
+        // إذا كان المشرف داخل الإدارة، ارجع لواجهة المواطن
+        if (!document.getElementById('view-admin').classList.contains('hidden')) {
+          switchView('citizen');
+          return;
+        }
+
+        // إذا كان في شاشة المواطن الرئيسية، افتح نافذة تأكيد الخروج
+        openExitModal();
+        history.pushState({ screen: 'citizen' }, '');
+      });
+    }
+
+    function openExitModal() {
+      document.getElementById('exit-modal').classList.remove('hidden');
+    }
+
+    function closeExitModal() {
+      document.getElementById('exit-modal').classList.add('hidden');
+    }
+
+    function confirmExitApp() {
+      closeExitModal();
+      // محاولة إغلاق النافذة (تعمل في تطبيقات الـ APK والـ PWA)
+      window.close();
+      // في حال منع المتصفح الإغلاق المباشر، توجيه لشاشة الوداع
+      document.body.innerHTML = `
+        <div class="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center" dir="rtl">
+          <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-3 shadow-lg">✓</div>
+          <h2 class="text-base font-extrabold mb-1">شكراً لزيارتك بوابة سهل حوران</h2>
+          <p class="text-xs text-slate-400 mb-5">تم إنهاء الجلسة بنجاح، يمكنك إغلاق التبويب الآن.</p>
+          <button onclick="location.reload()" class="px-5 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold border border-slate-700">العودة للتطبيق</button>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // نظام خيارات النظر (عادي vs ضعاف النظر)
+    // ==========================================
+    function openVisionModal() { 
+      document.getElementById('vision-modal').classList.remove('hidden'); 
+    }
+    
+    function closeVisionModal() { 
+      document.getElementById('vision-modal').classList.add('hidden'); 
+    }
+
+    function applyVisionMode(mode) {
+      const body = document.getElementById('app-body');
+      const optNormal = document.getElementById('opt-normal');
+      const optLow = document.getElementById('opt-low-vision');
+
+      if (mode === 'low-vision') {
+        body.classList.add('low-vision-mode');
+        localStorage.setItem('sahl_vision_mode', 'low-vision');
+        if (optLow) optLow.classList.add('border-slate-950', 'bg-slate-100');
+        if (optNormal) optNormal.classList.remove('border-slate-950', 'bg-slate-100');
+      } else {
+        body.classList.remove('low-vision-mode');
+        localStorage.setItem('sahl_vision_mode', 'normal');
+        if (optNormal) optNormal.classList.add('border-slate-950', 'bg-slate-100');
+        if (optLow) optLow.classList.remove('border-slate-950', 'bg-slate-100');
+      }
+      closeVisionModal();
+      if (map) setTimeout(() => map.invalidateSize(), 200);
+    }
+
+    // ==========================================
+    // إدارة الجلسات والأمان (5 دقائق)
+    // ==========================================
     function isAdminSessionActive() {
       const session = localStorage.getItem('sahl_admin_session_expiry');
       if (!session) return false;
@@ -414,25 +563,11 @@
       switchView('citizen');
     }
 
-    function openVisionModal() { document.getElementById('vision-modal').classList.remove('hidden'); }
-    function closeVisionModal() { document.getElementById('vision-modal').classList.add('hidden'); }
-
-    function applyVisionMode(mode) {
-      const body = document.getElementById('app-body');
-      if (mode === 'low-vision') {
-        body.classList.add('low-vision-mode');
-        localStorage.setItem('sahl_vision_mode', 'low-vision');
-      } else {
-        body.classList.remove('low-vision-mode');
-        localStorage.setItem('sahl_vision_mode', 'normal');
-      }
-      closeVisionModal();
-    }
-
+    // ==========================================
+    // نظام الـ GPS والخرائط
+    // ==========================================
     function locateUser(isManualClick) {
       const infoEl = document.getElementById('geo-info');
-      const accEl = document.getElementById('geo-accuracy');
-
       if (!navigator.geolocation) return;
 
       navigator.geolocation.getCurrentPosition(
@@ -457,7 +592,7 @@
           }
         },
         () => {
-          if (isManualClick) alert('يرجى تشغيل إذن الموقع في المتصفح');
+          if (isManualClick) alert('يرجى تفعيل إذن الموقع الجغرافي');
           infoEl.innerText = 'يرجى تشغيل GPS';
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -521,7 +656,7 @@
         category: currentCategory,
         town: currentTown,
         desc: desc,
-        stepIndex: 0, // بداية من تم الاستلام
+        stepIndex: 0,
         time: 'الآن'
       });
 
@@ -544,12 +679,10 @@
       renderAdminReports();
     }
 
-    // بناء بطاقات البلاغات بالمخطط المرحلي السويسري التفاعلي
     function renderAdminReports() {
       const container = document.getElementById('admin-reports-list');
       const searchQuery = (document.getElementById('admin-search-input')?.value || '').toLowerCase();
 
-      // إحصائيات
       document.getElementById('stat-total').innerText = reports.length;
       document.getElementById('stat-pending').innerText = reports.filter(r => r.stepIndex < 3).length;
       document.getElementById('stat-resolved').innerText = reports.filter(r => r.stepIndex === 3).length;
@@ -558,101 +691,4 @@
 
       let list = reports;
       if (currentFilterTown !== 'all') {
-        list = list.filter(r => r.town === currentFilterTown);
-      }
-      if (searchQuery) {
-        list = list.filter(r => r.id.toLowerCase().includes(searchQuery) || r.desc.toLowerCase().includes(searchQuery));
-      }
-
-      if (list.length === 0) {
-        container.innerHTML = `
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-400">
-            <p class="text-xs font-bold">لا توجد بلاغات تطابق البحث في هذا النطاق</p>
-          </div>
-        `;
-        return;
-      }
-
-      list.forEach((rep) => {
-        const card = document.createElement('div');
-        card.className = 'bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3';
-
-        // رسم مؤشر الخطوات الأربعة السويسري
-        let stepsHtml = '<div class="grid grid-cols-4 gap-1 pt-1">';
-        STEPS.forEach((stepName, sIdx) => {
-          const isActive = sIdx <= rep.stepIndex;
-          const isCurrent = sIdx === rep.stepIndex;
-          stepsHtml += `
-            <div class="text-center">
-              <div class="h-1.5 rounded-full mb-1 ${isActive ? (rep.stepIndex === 3 ? 'bg-emerald-600' : 'bg-slate-950') : 'bg-slate-200'}"></div>
-              <span class="text-[9px] font-bold block ${isCurrent ? 'text-slate-950 font-black' : 'text-slate-400'}">${stepName}</span>
-            </div>
-          `;
-        });
-        stepsHtml += '</div>';
-
-        card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div class="flex items-center gap-1.5">
-              <span class="swiss-code font-bold text-xs bg-slate-950 text-white px-2 py-0.5 rounded">${rep.id}</span>
-              <span class="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">${rep.town}</span>
-            </div>
-            <span class="text-[10px] swiss-code text-slate-400">${rep.time}</span>
-          </div>
-
-          <div>
-            <h4 class="text-xs font-black text-slate-950">${rep.category}</h4>
-            <p class="text-xs text-slate-600 mt-0.5 leading-relaxed bg-slate-50 p-2 rounded-xl border border-slate-100 font-medium">${rep.desc}</p>
-          </div>
-
-          <!-- المسار السويسري -->
-          ${stepsHtml}
-
-          <!-- زر تقديم البلاغ خطوة للأمام -->
-          <div class="pt-2 border-t border-slate-100 flex justify-between items-center">
-            <span class="text-[10px] font-bold text-slate-500">
-              الحالة الحالية: <b class="text-slate-950">${STEPS[rep.stepIndex]}</b>
-            </span>
-
-            <div class="flex gap-1.5">
-              ${rep.stepIndex < 3 ? `
-                <button onclick="advanceReportStep('${rep.id}')" class="px-3 py-1 bg-slate-950 hover:bg-slate-800 text-white text-[11px] font-bold rounded-lg transition">
-                  ترقية للمرحلة التالية ➔
-                </button>
-              ` : `
-                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                  مكتمل ومغلق ✓
-                </span>
-              `}
-            </div>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    // ترقية حالة البلاغ للمرحلة التالية بضغطة زر واحدة
-    function advanceReportStep(id) {
-      const rep = reports.find(r => r.id === id);
-      if (rep && rep.stepIndex < 3) {
-        rep.stepIndex++;
-        renderAdminReports();
-      }
-    }
-
-    function switchView(view) {
-      if (view === 'citizen') {
-        document.getElementById('view-citizen').classList.remove('hidden');
-        document.getElementById('view-admin').classList.add('hidden');
-        document.getElementById('btn-citizen').className = 'px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-950 shadow-xs transition';
-        document.getElementById('btn-admin').className = 'px-3 py-1 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-950 transition flex items-center gap-1';
-      } else {
-        document.getElementById('view-citizen').classList.add('hidden');
-        document.getElementById('view-admin').classList.remove('hidden');
-        document.getElementById('btn-admin').className = 'px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-950 shadow-xs transition flex items-center gap-1';
-        document.getElementById('btn-citizen').className = 'px-3 py-1 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-950 transition';
-      }
-    }
-  </script>
-</body>
-</html>
+        list = list.filter(r => r.town === currentFilterTow
