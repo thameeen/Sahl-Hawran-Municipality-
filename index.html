@@ -25,8 +25,6 @@
     .civic-btn-primary { background: linear-gradient(135deg, #047857 0%, #064e3b 100%); color: #ffffff; font-weight: 800; }
     #map { height: 230px !important; width: 100% !important; border-radius: 1rem; border: 1px solid #cbd5e1; background: #e2e8f0; }
     #detail-map { height: 180px !important; width: 100% !important; border-radius: 0.75rem; border: 1px solid #cbd5e1; }
-    body.low-vision-mode { font-size: 135% !important; }
-    body.low-vision-mode button, body.low-vision-mode input, body.low-vision-mode textarea { font-size: 115% !important; border: 3px solid #0f172a !important; font-weight: 900 !important; }
   </style>
 </head>
 <body id="app-body" class="pb-24 antialiased">
@@ -48,7 +46,6 @@
       </div>
       
       <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
-        <button type="button" onclick="openVisionModal()" class="w-8 h-8 flex items-center justify-center text-sm font-bold bg-white text-slate-700 rounded-lg shadow-xs hover:bg-slate-50 active:scale-95">👁️</button>
         <button type="button" onclick="switchView('citizen')" id="btn-citizen" class="px-3 py-1 text-xs font-black rounded-lg civic-btn-primary shadow-xs active:scale-95">المواطن</button>
         <button type="button" onclick="handleAdminTabClick()" id="btn-admin" class="px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 active:scale-95 flex items-center gap-1">
           <span>الإدارة</span><span class="text-[10px]">🔒</span>
@@ -71,7 +68,7 @@
           </span>
           <span class="text-[10px] text-slate-400 mono font-bold">الرمثا • الأردن</span>
         </div>
-        <h2 class="text-base font-extrabold text-white tracking-tight">سهل حوران في خدمة المواطن</h2>
+        <h2 class="text-lg font-black text-white tracking-tight leading-snug">سهل حوران في خدمتكم</h2>
         <p class="text-[11px] text-slate-300 leading-relaxed font-normal">
           معاً نحو بيئة مستدامة ومرافق متطورة في الطرة، الشجرة، الذنيبة، وعمراوة. استجابة ميدانية ذكية ترتقي بجودة الحياة وتسهل خدمتكم.
         </p>
@@ -306,27 +303,6 @@
     </div>
   </div>
 
-  <!-- نافذة خيارات النظر -->
-  <div id="vision-modal" style="display: none;" class="fixed inset-0 z-50 bg-slate-950/70 items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-5 max-w-xs w-full space-y-3.5">
-      <div class="text-center">
-        <h3 class="font-extrabold text-slate-950 text-sm">خيارات الرؤية ووضوح الخط</h3>
-        <p class="text-[11px] text-slate-500">اختر النمط الأنسب لراحتك</p>
-      </div>
-      <div class="space-y-2">
-        <button type="button" onclick="applyVisionMode('normal')" class="w-full p-3 text-right border rounded-xl bg-slate-50 border-slate-200">
-          <span class="text-xs font-bold text-slate-950 block">🌟 1. وضع الأشخاص العادي (طبيعي)</span>
-          <span class="text-[10px] text-slate-500 mt-0.5 block">حجم خط متوازن ومعياري</span>
-        </button>
-        <button type="button" onclick="applyVisionMode('low-vision')" class="w-full p-3.5 text-right border-2 rounded-xl bg-white border-slate-900">
-          <span class="text-xs font-black text-slate-950 block">🔍 2. وضع ضعاف النظر (حجم كبير جداً)</span>
-          <span class="text-[10px] text-slate-600 font-bold mt-1 block">خطوط ضخمة وأزرار عريضة لتسهيل القراءة</span>
-        </button>
-      </div>
-      <button type="button" onclick="closeVisionModal()" class="w-full py-2 bg-slate-950 text-white rounded-xl text-xs font-bold">إغلاق</button>
-    </div>
-  </div>
-
   <!-- نافذة تسجيل دخول المشرف -->
   <div id="login-modal" style="display: none;" class="fixed inset-0 z-50 bg-slate-950/70 items-center justify-center p-4">
     <div class="bg-white rounded-2xl p-5 max-w-xs w-full space-y-3.5">
@@ -381,19 +357,28 @@
     };
 
     const AI_CATEGORY_PATTERNS = {
-      'إنارة الشوارع': ['lamp', 'light', 'lantern', 'pole', 'post', 'spotlight', 'traffic light', 'beacon', 'candle', 'torch', 'bulb', 'electric', 'wire', 'sky', 'night'],
-      'تراكم النفايات': ['trash', 'ashcan', 'bin', 'garbage', 'waste', 'crate', 'barrel', 'carton', 'bag', 'plastic', 'dumpster', 'litter', 'rubbish', 'box', 'can'],
-      'هبوطات وتلف الطرق': ['street', 'road', 'asphalt', 'curb', 'pavement', 'sidewalk', 'barrier', 'stone', 'gravel', 'concrete', 'pothole', 'crack', 'ground', 'brick', 'rock'],
-      'تصريف مياه الأمطار': ['water', 'puddle', 'drain', 'sewer', 'manhole', 'gutter', 'stream', 'mud', 'rain', 'pipe', 'flood', 'leak', 'lake', 'fountain'],
-      'الأرصفة والمرافق': ['tree', 'park', 'bench', 'sidewalk', 'fence', 'pavement', 'grass', 'garden', 'wall', 'brick', 'building']
+      'إنارة الشوارع': ['lamp', 'light', 'lantern', 'pole', 'post', 'spotlight', 'traffic light', 'beacon', 'torch', 'bulb', 'electric', 'wire', 'streetlight', 'lighting', 'fixture'],
+      'تراكم النفايات': ['trash', 'ashcan', 'bin', 'garbage', 'waste', 'crate', 'barrel', 'carton', 'bag', 'plastic', 'dumpster', 'litter', 'rubbish', 'box', 'can', 'container', 'refuse', 'debris'],
+      'هبوطات وتلف الطرق': ['street', 'road', 'asphalt', 'curb', 'pavement', 'sidewalk', 'barrier', 'stone', 'gravel', 'concrete', 'pothole', 'crack', 'ground', 'brick', 'rock', 'hole'],
+      'تصريف مياه الأمطار': ['water', 'puddle', 'drain', 'sewer', 'manhole', 'gutter', 'stream', 'mud', 'rain', 'pipe', 'flood', 'leak', 'lake', 'fountain', 'pool'],
+      'الأرصفة والمرافق': ['tree', 'park', 'bench', 'sidewalk', 'fence', 'pavement', 'grass', 'garden', 'plant', 'bush']
     };
 
     const FORBIDDEN_OBJECTS = [
-      'cup', 'coffee mug', 'mug', 'espresso', 'coffeepot', 'teapot', 'cup of coffee',
-      'plate', 'dish', 'bowl', 'spoon', 'fork', 'food', 'pizza', 'sandwich',
-      'sofa', 'couch', 'bed', 'pillow', 'rug', 'carpet', 'mat', 'curtain',
-      'television', 'monitor', 'screen', 'laptop', 'computer', 'mouse', 'keyboard',
-      'cellphone', 'telephone', 'person', 'face', 'suit', 't-shirt', 'cat', 'dog'
+      // أشخاص وملابس
+      'person', 'people', 'man', 'woman', 'boy', 'girl', 'face', 'head', 'hand', 'foot', 'leg', 'arm',
+      'suit', 't-shirt', 'jeans', 'sock', 'shoe', 'sneaker', 'boot', 'hat', 'cap', 'glasses',
+      // أثاث ومنزل
+      'sofa', 'couch', 'bed', 'pillow', 'cushion', 'chair', 'table', 'desk', 'cabinet',
+      'rug', 'carpet', 'mat', 'curtain', 'drapes', 'blanket', 'quilt',
+      'television', 'monitor', 'screen', 'laptop', 'computer', 'keyboard', 'mouse',
+      'cellphone', 'telephone', 'remote', 'book', 'magazine',
+      // طعام ومطبخ
+      'cup', 'coffee mug', 'mug', 'plate', 'dish', 'bowl', 'spoon', 'fork', 'knife',
+      'food', 'pizza', 'sandwich', 'bread', 'fruit', 'bottle', 'glass',
+      // حيوانات وأماكن داخلية
+      'cat', 'dog', 'pet', 'room', 'indoor', 'living room', 'bedroom', 'kitchen', 'bathroom',
+      'wall', 'ceiling', 'floor', 'door', 'window'
     ];
 
     let currentCategory = 'تراكم النفايات';
@@ -410,8 +395,6 @@
     let reports = [];
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const savedMode = localStorage.getItem('sahl_vision_mode');
-      if (savedMode === 'low-vision') applyVisionMode('low-vision');
 
       initMapSafely();
       await fetchReportsFromCloud();
@@ -491,11 +474,13 @@
 
         if (aiModel) {
           try {
-            const predictions = await aiModel.classify(tempImg, 5);
+            const predictions = await aiModel.classify(tempImg, 8);
+            
+            // 1. فحص الأشياء الممنوعة (أشخاص، منزل، ملابس...) بعتبة منخفضة
             for (let pred of predictions) {
               const label = pred.className.toLowerCase();
               for (let forb of FORBIDDEN_OBJECTS) {
-                if (label.includes(forb) && pred.probability > 0.12) {
+                if (label.includes(forb) && pred.probability > 0.08) {
                   isForbidden = true;
                   forbiddenLabel = pred.className;
                   break;
@@ -504,14 +489,21 @@
               if (isForbidden) break;
             }
 
-            if (!isForbidden) {
+            // 2. فحص مطابقة الفئة (يجب أن يظهر كلمة مفتاحية واحدة على الأقل)
+            if (!isForbidden && validCategoryKeywords.length > 0) {
               for (let pred of predictions) {
                 const label = pred.className.toLowerCase();
                 for (let validKw of validCategoryKeywords) {
-                  if (label.includes(validKw)) { isMatchingCategory = true; break; }
+                  if (label.includes(validKw) && pred.probability > 0.05) {
+                    isMatchingCategory = true;
+                    break;
+                  }
                 }
                 if (isMatchingCategory) break;
               }
+            } else if (validCategoryKeywords.length === 0) {
+              // فئة "ملاحظات أخرى" تسمح بأي صورة غير ممنوعة
+              isMatchingCategory = true;
             }
           } catch (aiErr) { console.warn(aiErr); }
         }
@@ -965,20 +957,6 @@
       }
     }
 
-    function openVisionModal() { document.getElementById('vision-modal').style.display = 'flex'; }
-    function closeVisionModal() { document.getElementById('vision-modal').style.display = 'none'; }
-    function applyVisionMode(mode) {
-      const body = document.getElementById('app-body');
-      if (mode === 'low-vision') {
-        body.classList.add('low-vision-mode');
-        localStorage.setItem('sahl_vision_mode', 'low-vision');
-      } else {
-        body.classList.remove('low-vision-mode');
-        localStorage.setItem('sahl_vision_mode', 'normal');
-      }
-      closeVisionModal();
-      if (map) setTimeout(() => map.invalidateSize(), 200);
-    }
 
     function openExitModal() { document.getElementById('exit-modal').style.display = 'flex'; }
     function closeExitModal() { document.getElementById('exit-modal').style.display = 'none'; }
