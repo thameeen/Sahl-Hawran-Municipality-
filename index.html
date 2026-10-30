@@ -14,10 +14,10 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="سهل حوران" />
   
-  <!-- المكتبات والخطوط -->
+  <!-- المكتبات السريعة عبر سيرفرات Cloudflare فائقة السرعة في الأردن -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet" />
 
   <style>
@@ -27,11 +27,19 @@
       touch-action: manipulation;
     }
     .swiss-code { font-family: 'Space Mono', monospace; }
-    #map { height: 260px; width: 100%; border-radius: 1rem; z-index: 1; border: 1px solid #cbd5e1; }
     
-    /* =========================================
-       نمط ضعاف النظر الفائق (Low Vision Mode)
-       ========================================= */
+    /* ضبط مساحة الخريطة لتفتح فوراً */
+    #map { 
+      height: 260px !important; 
+      min-height: 260px !important;
+      width: 100% !important; 
+      border-radius: 1rem; 
+      z-index: 10; 
+      border: 1px solid #cbd5e1; 
+      background: #e2e8f0;
+    }
+    
+    /* نمط ضعاف النظر الفائق */
     body.low-vision-mode {
       font-size: 135% !important;
       background-color: #ffffff !important;
@@ -54,12 +62,8 @@
     }
     body.low-vision-mode #map {
       height: 320px !important;
+      min-height: 320px !important;
       border: 3px solid #000000 !important;
-    }
-    body.low-vision-mode label {
-      font-size: 1.1rem !important;
-      font-weight: 900 !important;
-      color: #000000 !important;
     }
   </style>
 </head>
@@ -82,23 +86,19 @@
         </div>
       </div>
       
-      <!-- أزرار التحكم العلوية -->
+      <!-- أزرار التحكم -->
       <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
-        <!-- خيارات النظر -->
-        <button type="button" onclick="openVisionModal()" class="w-8 h-8 flex items-center justify-center text-sm font-bold bg-white text-slate-700 rounded-lg shadow-xs hover:bg-slate-50 active:scale-95">
+        <button type="button" onclick="openVisionModal()" class="w-8 h-8 flex items-center justify-center text-sm font-bold bg-white text-slate-700 rounded-lg shadow-xs hover:bg-slate-50 active:scale-95 cursor-pointer">
           👁️
         </button>
-        <!-- تبديل المواطن -->
-        <button type="button" onclick="switchView('citizen')" id="btn-citizen" class="px-3 py-1 text-xs font-bold rounded-lg bg-slate-950 text-white shadow-xs transition active:scale-95">
+        <button type="button" onclick="switchView('citizen')" id="btn-citizen" class="px-3 py-1 text-xs font-bold rounded-lg bg-slate-950 text-white shadow-xs transition active:scale-95 cursor-pointer">
           المواطن
         </button>
-        <!-- تبديل الإدارة -->
-        <button type="button" onclick="handleAdminTabClick()" id="btn-admin" class="px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-950 transition active:scale-95 flex items-center gap-1">
+        <button type="button" onclick="handleAdminTabClick()" id="btn-admin" class="px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-950 transition active:scale-95 flex items-center gap-1 cursor-pointer">
           <span>الإدارة</span>
           <span class="text-[10px]">🔒</span>
         </button>
-        <!-- زر الخروج -->
-        <button type="button" onclick="openExitModal()" class="w-7 h-7 flex items-center justify-center text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg active:scale-95">
+        <button type="button" onclick="openExitModal()" class="w-7 h-7 flex items-center justify-center text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg active:scale-95 cursor-pointer">
           ✕
         </button>
       </div>
@@ -130,12 +130,12 @@
         <div>
           <label class="block text-xs font-bold text-slate-800 mb-2">1. تصنيف المشكلة</label>
           <div class="grid grid-cols-2 gap-2" id="category-selector">
-            <button type="button" onclick="setCategory(this, 'تراكم النفايات')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-950 bg-slate-950 text-white text-right active:scale-95 transition">🗑️ تراكم النفايات</button>
-            <button type="button" onclick="setCategory(this, 'هبوطات وتلف الطرق')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-200 bg-slate-50 text-slate-700 text-right active:scale-95 transition">🚧 تلف الطرق</button>
-            <button type="button" onclick="setCategory(this, 'إنارة الشوارع')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-200 bg-slate-50 text-slate-700 text-right active:scale-95 transition">💡 إنارة الشوارع</button>
-            <button type="button" onclick="setCategory(this, 'تصريف مياه الأمطار')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-200 bg-slate-50 text-slate-700 text-right active:scale-95 transition">🌧️ تصريف المياه</button>
-            <button type="button" onclick="setCategory(this, 'الأرصفة والمرافق')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-200 bg-slate-50 text-slate-700 text-right active:scale-95 transition">🌳 مرافق عامة</button>
-            <button type="button" onclick="setCategory(this, 'ملاحظات أخرى')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-200 bg-slate-50 text-slate-700 text-right active:scale-95 transition">📦 ملاحظة أخرى</button>
+            <button type="button" onclick="setCategory(this, 'تراكم النفايات')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-950 bg-slate-950 text-white text-right active:scale-95 transition cursor-pointer">🗑️ تراكم النفايات</button>
+            <button type="button" onclick="setCategory(this, 'هبوطات وتلف الطرق')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-200 bg-slate-50 text-slate-700 text-right active:scale-95 transition cursor-pointer">🚧 تلف الطرق</button>
+            <button type="button" onclick="setCategory(this, 'إنارة الشوارع')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-200 bg-slate-50 text-slate-700 text-right active:scale-95 transition cursor-pointer">💡 إنارة الشوارع</button>
+            <button type="button" onclick="setCategory(this, 'تصريف مياه الأمطار')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-200 bg-slate-50 text-slate-700 text-right active:scale-95 transition cursor-pointer">🌧️ تصريف المياه</button>
+            <button type="button" onclick="setCategory(this, 'الأرصفة والمرافق')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-200 bg-slate-50 text-slate-700 text-right active:scale-95 transition cursor-pointer">🌳 مرافق عامة</button>
+            <button type="button" onclick="setCategory(this, 'ملاحظات أخرى')" class="cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-200 bg-slate-50 text-slate-700 text-right active:scale-95 transition cursor-pointer">📦 ملاحظة أخرى</button>
           </div>
         </div>
 
@@ -143,19 +143,20 @@
         <div>
           <div class="flex justify-between items-center mb-1.5">
             <label class="text-xs font-bold text-slate-800">2. الموقع الجغرافي للخلل</label>
-            <button type="button" onclick="locateUser()" class="text-xs font-bold text-slate-950 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-300 flex items-center gap-1 active:scale-95 transition">
+            <button type="button" onclick="locateUser()" class="text-xs font-bold text-slate-950 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-300 flex items-center gap-1 active:scale-95 transition cursor-pointer">
               <span>🎯 تحديث مكاني (GPS)</span>
             </button>
           </div>
 
           <!-- أزرار البلدات السريعة -->
           <div class="grid grid-cols-4 gap-1.5 mb-2">
-            <button type="button" id="town-الطرة" onclick="manualFocusTown('الطرة', 32.6120, 35.9910)" class="town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-950 text-white active:scale-95">الطرة</button>
-            <button type="button" id="town-الشجرة" onclick="manualFocusTown('الشجرة', 32.6515, 35.9420)" class="town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-100 text-slate-700 active:scale-95">الشجرة</button>
-            <button type="button" id="town-الذنيبة" onclick="manualFocusTown('الذنيبة', 32.6780, 35.9210)" class="town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-100 text-slate-700 active:scale-95">الذنيبة</button>
-            <button type="button" id="town-عمراوة" onclick="manualFocusTown('عمراوة', 32.6840, 35.8850)" class="town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-100 text-slate-700 active:scale-95">عمراوة</button>
+            <button type="button" id="town-الطرة" onclick="manualFocusTown('الطرة', 32.6120, 35.9910)" class="town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-950 text-white active:scale-95 cursor-pointer">الطرة</button>
+            <button type="button" id="town-الشجرة" onclick="manualFocusTown('الشجرة', 32.6515, 35.9420)" class="town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-100 text-slate-700 active:scale-95 cursor-pointer">الشجرة</button>
+            <button type="button" id="town-الذنيبة" onclick="manualFocusTown('الذنيبة', 32.6780, 35.9210)" class="town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-100 text-slate-700 active:scale-95 cursor-pointer">الذنيبة</button>
+            <button type="button" id="town-عمراوة" onclick="manualFocusTown('عمراوة', 32.6840, 35.8850)" class="town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-100 text-slate-700 active:scale-95 cursor-pointer">عمراوة</button>
           </div>
 
+          <!-- حاوية الخريطة -->
           <div id="map"></div>
 
           <div class="mt-2 p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center text-xs">
@@ -172,7 +173,7 @@
           <textarea id="report-desc" rows="2" placeholder="اكتب تفاصيل إضافية أو أقرب معلم واضح..." class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-slate-900 outline-none"></textarea>
         </div>
 
-        <button type="button" onclick="submitReport()" class="w-full py-3 bg-slate-950 hover:bg-slate-900 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition">
+        <button type="button" onclick="submitReport()" class="w-full py-3 bg-slate-950 hover:bg-slate-900 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition cursor-pointer">
           إرسال البلاغ والحصول على رقم التتبع
         </button>
       </div>
@@ -190,7 +191,6 @@
     <!-- ================== واجهة الإدارة السويسرية ================== -->
     <div id="view-admin" style="display: none;" class="space-y-3.5">
       
-      <!-- لوحة التحكم العلوية -->
       <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
         <div class="flex justify-between items-center pb-2.5 border-b border-slate-100">
           <div>
@@ -202,19 +202,17 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <!-- عداد الأمان 5 دقائق -->
             <div class="bg-slate-900 text-emerald-400 px-2 py-1 rounded-lg text-[10px] swiss-code font-bold flex items-center gap-1">
               <span>SEC:</span>
               <span id="session-countdown-badge">05:00</span>
             </div>
             
-            <button type="button" onclick="adminLogout()" class="px-2 py-1 text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 active:scale-95">
+            <button type="button" onclick="adminLogout()" class="px-2 py-1 text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 active:scale-95 cursor-pointer">
               خروج
             </button>
           </div>
         </div>
 
-        <!-- أرقام الإحصائيات -->
         <div class="grid grid-cols-3 gap-2 mt-2.5">
           <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 text-center">
             <span class="text-[9px] font-bold text-slate-400 block">إجمالي الوارد</span>
@@ -231,7 +229,6 @@
         </div>
       </div>
 
-      <!-- شريط البحث والفلترة -->
       <div class="space-y-1.5">
         <input 
           type="text" 
@@ -242,22 +239,20 @@
         />
 
         <div class="flex items-center gap-1 overflow-x-auto pb-1 text-[11px] font-bold">
-          <button type="button" onclick="filterTown('all')" class="admin-tab px-3 py-1 rounded-lg bg-slate-950 text-white shrink-0 active:scale-95" data-filter="all">الكل</button>
-          <button type="button" onclick="filterTown('الطرة')" class="admin-tab px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 shrink-0 active:scale-95" data-filter="الطرة">الطرة</button>
-          <button type="button" onclick="filterTown('الشجرة')" class="admin-tab px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 shrink-0 active:scale-95" data-filter="الشجرة">الشجرة</button>
-          <button type="button" onclick="filterTown('الذنيبة')" class="admin-tab px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 shrink-0 active:scale-95" data-filter="الذنيبة">الذنيبة</button>
-          <button type="button" onclick="filterTown('عمراوة')" class="admin-tab px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 shrink-0 active:scale-95" data-filter="عمراوة">عمراوة</button>
+          <button type="button" onclick="filterTown('all')" class="admin-tab px-3 py-1 rounded-lg bg-slate-950 text-white shrink-0 active:scale-95 cursor-pointer" data-filter="all">الكل</button>
+          <button type="button" onclick="filterTown('الطرة')" class="admin-tab px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 shrink-0 active:scale-95 cursor-pointer" data-filter="الطرة">الطرة</button>
+          <button type="button" onclick="filterTown('الشجرة')" class="admin-tab px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 shrink-0 active:scale-95 cursor-pointer" data-filter="الشجرة">الشجرة</button>
+          <button type="button" onclick="filterTown('الذنيبة')" class="admin-tab px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 shrink-0 active:scale-95 cursor-pointer" data-filter="الذنيبة">الذنيبة</button>
+          <button type="button" onclick="filterTown('عمراوة')" class="admin-tab px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 shrink-0 active:scale-95 cursor-pointer" data-filter="عمراوة">عمراوة</button>
         </div>
       </div>
 
-      <div id="admin-reports-list" class="space-y-3">
-        <!-- تملأ برمجياً -->
-      </div>
+      <div id="admin-reports-list" class="space-y-3"></div>
     </div>
 
   </main>
 
-  <!-- ================== نافذة تأكيد الخروج النهائي ================== -->
+  <!-- نافذة تأكيد الخروج -->
   <div id="exit-modal" style="display: none;" class="fixed inset-0 z-50 bg-slate-950/70 items-center justify-center p-4">
     <div class="bg-white rounded-2xl p-5 max-w-xs w-full border border-slate-200 shadow-2xl space-y-4 text-center">
       <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
@@ -271,17 +266,17 @@
       </div>
 
       <div class="flex gap-2 pt-1">
-        <button type="button" onclick="closeExitModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold active:scale-95">
+        <button type="button" onclick="closeExitModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold active:scale-95 cursor-pointer">
           البقاء
         </button>
-        <button type="button" onclick="confirmExitApp()" class="w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold active:scale-95">
+        <button type="button" onclick="confirmExitApp()" class="w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold active:scale-95 cursor-pointer">
           تأكيد الخروج
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ================== نافذة خيارات النظر ================== -->
+  <!-- نافذة خيارات النظر -->
   <div id="vision-modal" style="display: none;" class="fixed inset-0 z-50 bg-slate-950/70 items-center justify-center p-4">
     <div class="bg-white rounded-2xl p-5 max-w-xs w-full border border-slate-200 shadow-2xl space-y-3.5">
       <div class="text-center">
@@ -290,12 +285,12 @@
       </div>
 
       <div class="space-y-2">
-        <button type="button" onclick="applyVisionMode('normal')" class="w-full p-3 text-right border-2 rounded-xl bg-slate-50 border-slate-200 active:scale-95">
+        <button type="button" onclick="applyVisionMode('normal')" class="w-full p-3 text-right border-2 rounded-xl bg-slate-50 border-slate-200 active:scale-95 cursor-pointer">
           <span class="text-xs font-bold text-slate-950 block">🌟 1. وضع الأشخاص العادي (طبيعي)</span>
           <span class="text-[10px] text-slate-500 mt-0.5 block">حجم خط متوازن ومعياري لكافة الشاشات</span>
         </button>
 
-        <button type="button" onclick="applyVisionMode('low-vision')" class="w-full p-3.5 text-right border-2 rounded-xl bg-white border-slate-950 shadow-xs active:scale-95">
+        <button type="button" onclick="applyVisionMode('low-vision')" class="w-full p-3.5 text-right border-2 rounded-xl bg-white border-slate-950 shadow-xs active:scale-95 cursor-pointer">
           <span class="text-xs font-black text-slate-950 block">🔍 2. وضع ضعاف النظر (حجم كبير جداً)</span>
           <span class="text-[10px] text-slate-700 font-bold mt-1 block">
             خطوط ضخمة وأزرار عريضة لتسهيل القراءة لكبار السن وضعاف البصر
@@ -303,13 +298,13 @@
         </button>
       </div>
 
-      <button type="button" onclick="closeVisionModal()" class="w-full py-2 bg-slate-950 text-white rounded-xl text-xs font-bold active:scale-95">
+      <button type="button" onclick="closeVisionModal()" class="w-full py-2 bg-slate-950 text-white rounded-xl text-xs font-bold active:scale-95 cursor-pointer">
         إغلاق
       </button>
     </div>
   </div>
 
-  <!-- ================== نافذة تسجيل الدخول للمشرف ================== -->
+  <!-- نافذة تسجيل دخول المشرف -->
   <div id="login-modal" style="display: none;" class="fixed inset-0 z-50 bg-slate-950/70 items-center justify-center p-4">
     <div class="bg-white rounded-2xl p-5 max-w-xs w-full border border-slate-200 shadow-xl space-y-3.5">
       <div class="text-center">
@@ -333,10 +328,10 @@
       </div>
 
       <div class="flex gap-2 pt-1">
-        <button type="button" onclick="closeLoginModal()" class="w-1/2 py-2 border border-slate-300 text-slate-700 rounded-lg text-xs font-bold active:scale-95">
+        <button type="button" onclick="closeLoginModal()" class="w-1/2 py-2 border border-slate-300 text-slate-700 rounded-lg text-xs font-bold active:scale-95 cursor-pointer">
           إلغاء
         </button>
-        <button type="button" onclick="executeLogin()" class="w-1/2 py-2 bg-slate-950 text-white rounded-lg text-xs font-bold active:scale-95">
+        <button type="button" onclick="executeLogin()" class="w-1/2 py-2 bg-slate-950 text-white rounded-lg text-xs font-bold active:scale-95 cursor-pointer">
           دخول
         </button>
       </div>
@@ -360,7 +355,7 @@
     let selectedLat = 32.6120;
     let selectedLng = 35.9910;
     let currentFilterTown = 'all';
-    let map, marker, accuracyCircle;
+    let map = null, marker = null, accuracyCircle = null;
 
     const STEPS = ['تم الاستلام', 'المراجعة الفنية', 'الفريق الميداني', 'تم الإنجاز'];
 
@@ -375,15 +370,32 @@
       }
     ];
 
-    window.onload = function() {
+    // تشغيل التطبيق فور اكتمال المستند
+    window.addEventListener('DOMContentLoaded', () => {
       // فحص خيار النظر المخزن
       const savedMode = localStorage.getItem('sahl_vision_mode');
       if (savedMode === 'low-vision') applyVisionMode('low-vision');
 
-      // تشغيل الخريطة بشكل آمن
+      // تهيئة الخريطة فوراً
+      initMapSafely();
+      renderAdminReports();
+      setInterval(checkSessionExpiryLoop, 1000);
+    });
+
+    function initMapSafely() {
       try {
+        if (typeof L === 'undefined') {
+          console.error('Leaflet not loaded yet');
+          return;
+        }
+
         map = L.map('map', { zoomControl: false }).setView([selectedLat, selectedLng], 14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        
+        // سيرفر الخرائط المفتوح السريع
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19
+        }).addTo(map);
+
         marker = L.marker([selectedLat, selectedLng], { draggable: true }).addTo(map);
 
         marker.on('dragend', function(e) {
@@ -394,17 +406,15 @@
         map.on('click', function(e) {
           updateLocationData(e.latlng.lat, e.latlng.lng, 'تحديد باللمس');
         });
-      } catch (err) {
-        console.error('Map init error:', err);
+
+        // تنشيط وتوسيع حجم الخريطة لتجنب اللون الأبيض
+        setTimeout(() => { if (map) map.invalidateSize(); }, 300);
+        setTimeout(() => { if (map) map.invalidateSize(); }, 1000);
+      } catch (e) {
+        console.error('Error init map:', e);
       }
+    }
 
-      renderAdminReports();
-      setInterval(checkSessionExpiryLoop, 1000);
-    };
-
-    // ==========================================
-    // نوافذ التطبيق (إظهار وإخفاء آمن 100%)
-    // ==========================================
     function openExitModal() {
       document.getElementById('exit-modal').style.display = 'flex';
     }
@@ -418,7 +428,7 @@
           <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-3 shadow-lg">✓</div>
           <h2 class="text-base font-extrabold mb-1">شكراً لزيارتك بوابة سهل حوران</h2>
           <p class="text-xs text-slate-400 mb-5">تم إنهاء الجلسة بنجاح، يمكنك إغلاق التطبيق الآن.</p>
-          <button onclick="location.reload()" class="px-5 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold border border-slate-700">العودة للتطبيق</button>
+          <button onclick="location.reload()" class="px-5 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold border border-slate-700 cursor-pointer">العودة للتطبيق</button>
         </div>
       `;
     }
@@ -442,9 +452,7 @@
       if (map) setTimeout(() => map.invalidateSize(), 200);
     }
 
-    // ==========================================
-    // فحص الـ GPS السريع بدون أي تعليق
-    // ==========================================
+    // تحديث موقع الـ GPS السريع
     function locateUser() {
       const infoEl = document.getElementById('geo-info');
       const accEl = document.getElementById('geo-accuracy');
@@ -465,24 +473,25 @@
 
           if (lat >= SAHL_BBOX.minLat && lat <= SAHL_BBOX.maxLat && lng >= SAHL_BBOX.minLng && lng <= SAHL_BBOX.maxLng) {
             updateLocationData(lat, lng, `دقة ±${accuracy}م`);
-            map.setView([lat, lng], 16);
-
-            if (accuracyCircle) map.removeLayer(accuracyCircle);
-            accuracyCircle = L.circle([lat, lng], {
-              radius: accuracy,
-              color: '#090a0f',
-              fillColor: '#10b981',
-              fillOpacity: 0.15
-            }).addTo(map);
+            if (map) {
+              map.setView([lat, lng], 16);
+              if (accuracyCircle) map.removeLayer(accuracyCircle);
+              accuracyCircle = L.circle([lat, lng], {
+                radius: accuracy,
+                color: '#090a0f',
+                fillColor: '#10b981',
+                fillOpacity: 0.15
+              }).addTo(map);
+            }
           } else {
             updateLocationData(lat, lng, `خارج النطاق`);
-            map.setView([lat, lng], 14);
+            if (map) map.setView([lat, lng], 14);
           }
         },
         (err) => {
           infoEl.innerText = `📍 الموقع الحالي: ${currentTown}`;
           accEl.innerText = 'يدوي';
-          alert('لم نتمكن من التقاط إشارة GPS. يمكنك النقر مباشرة على الخريطة لاختيار موقع العطل.');
+          alert('تعذر جلب موقعك بالـ GPS، يمكنك لمس الخريطة مباشرة لتحديد مكان المشكلة.');
         },
         { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
       );
@@ -518,24 +527,27 @@
     function highlightTownButton(name) {
       document.querySelectorAll('.town-btn').forEach(b => {
         if (b.innerText === name) {
-          b.className = 'town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-950 text-white active:scale-95';
+          b.className = 'town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-950 text-white active:scale-95 cursor-pointer';
         } else {
-          b.className = 'town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-100 text-slate-700 active:scale-95';
+          b.className = 'town-btn py-1.5 text-xs font-bold border rounded-lg bg-slate-100 text-slate-700 active:scale-95 cursor-pointer';
         }
       });
     }
 
     function manualFocusTown(name, lat, lng) {
       updateLocationData(lat, lng, 'اختيار يدوي');
-      if (map) map.setView([lat, lng], 15);
+      if (map) {
+        map.setView([lat, lng], 15);
+        map.invalidateSize();
+      }
     }
 
     function setCategory(btn, cat) {
       currentCategory = cat;
       document.querySelectorAll('.cat-btn').forEach(b => {
-        b.className = 'cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-200 bg-slate-50 text-slate-700 text-right active:scale-95 transition';
+        b.className = 'cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-200 bg-slate-50 text-slate-700 text-right active:scale-95 transition cursor-pointer';
       });
-      btn.className = 'cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-950 bg-slate-950 text-white text-right active:scale-95 transition';
+      btn.className = 'cat-btn p-2.5 text-xs font-bold border rounded-xl border-slate-950 bg-slate-950 text-white text-right active:scale-95 transition cursor-pointer';
     }
 
     function submitReport() {
@@ -624,9 +636,9 @@
       currentFilterTown = town;
       document.querySelectorAll('.admin-tab').forEach(b => {
         if (b.dataset.filter === town) {
-          b.className = 'admin-tab px-3 py-1 rounded-lg bg-slate-950 text-white shrink-0 active:scale-95';
+          b.className = 'admin-tab px-3 py-1 rounded-lg bg-slate-950 text-white shrink-0 active:scale-95 cursor-pointer';
         } else {
-          b.className = 'admin-tab px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 shrink-0 active:scale-95';
+          b.className = 'admin-tab px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 shrink-0 active:scale-95 cursor-pointer';
         }
       });
       renderAdminReports();
@@ -653,7 +665,7 @@
       if (list.length === 0) {
         container.innerHTML = `
           <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-400">
-            <p class="text-xs font-bold">لا توجد بلاغات تطابق البحث في هذا النطاق</p>
+            <p class="text-xs font-bold">لا توجد بلاغات في هذا النطاق</p>
           </div>
         `;
         return;
@@ -697,4 +709,45 @@
               الحالة: <b class="text-slate-950">${STEPS[rep.stepIndex]}</b>
             </span>
 
-            <d
+            <div class="flex gap-1.5">
+              ${rep.stepIndex < 3 ? `
+                <button type="button" onclick="advanceReportStep('${rep.id}')" class="px-3 py-1 bg-slate-950 hover:bg-slate-800 text-white text-[11px] font-bold rounded-lg transition active:scale-95 cursor-pointer">
+                  ترقية للمرحلة التالية ➔
+                </button>
+              ` : `
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                  مكتمل ومغلق ✓
+                </span>
+              `}
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function advanceReportStep(id) {
+      const rep = reports.find(r => r.id === id);
+      if (rep && rep.stepIndex < 3) {
+        rep.stepIndex++;
+        renderAdminReports();
+      }
+    }
+
+    function switchView(view) {
+      if (view === 'citizen') {
+        document.getElementById('view-citizen').style.display = 'block';
+        document.getElementById('view-admin').style.display = 'none';
+        document.getElementById('btn-citizen').className = 'px-3 py-1 text-xs font-bold rounded-lg bg-slate-950 text-white shadow-xs transition active:scale-95 cursor-pointer';
+        document.getElementById('btn-admin').className = 'px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-950 transition active:scale-95 flex items-center gap-1 cursor-pointer';
+        if (map) setTimeout(() => map.invalidateSize(), 150);
+      } else {
+        document.getElementById('view-citizen').style.display = 'none';
+        document.getElementById('view-admin').style.display = 'block';
+        document.getElementById('btn-admin').className = 'px-3 py-1 text-xs font-bold rounded-lg bg-slate-950 text-white shadow-xs transition active:scale-95 flex items-center gap-1 cursor-pointer';
+        document.getElementById('btn-citizen').className = 'px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-950 transition active:scale-95 cursor-pointer';
+      }
+    }
+  </script>
+</body>
+</html>
