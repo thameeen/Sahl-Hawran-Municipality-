@@ -72,7 +72,6 @@
       </div>
       
       <div class="flex items-center gap-1.5">
-        <!-- زر خيارات الرؤية والقراءة -->
         <button onclick="openVisionModal()" title="خيارات الرؤية والقراءة" class="p-2 text-xs font-bold bg-stone-100 rounded-lg hover:bg-stone-200 flex items-center gap-1">
           👁️
         </button>
@@ -174,7 +173,10 @@
         <div>
           <div class="flex items-center gap-2">
             <h2 class="text-sm font-bold text-stone-900">غرفة عمليات البلدية</h2>
-            <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">جلسة نشطة</span>
+            <!-- مؤشر وقت الجلسة النشطة المتبقي -->
+            <span id="session-countdown-badge" class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-mono font-bold">
+              نشط 5:00 د
+            </span>
           </div>
           <p class="text-[11px] text-stone-500">إدارة البلاغات الميدانية</p>
         </div>
@@ -203,7 +205,7 @@
           🔒
         </div>
         <h3 class="font-extrabold text-stone-900 text-base">دخول المشرف المعتمد</h3>
-        <p class="text-xs text-stone-500 mt-0.5">قسم العمليات - بلدية سهل حوران</p>
+        <p class="text-xs text-stone-500 mt-0.5">جلسة مؤمّنة تدوم لمدة 5 دقائق</p>
       </div>
 
       <div class="space-y-3">
@@ -259,9 +261,22 @@
   </div>
 
   <script>
-    // بيانات الدخول المشفرة في الجلسة
+    // بيانات الدخول
     const ADMIN_CREDENTIALS = { user: 'admin', pass: 'sahl2026' };
-    let isAdminLoggedIn = false;
+    const SESSION_DURATION_MS = 5 * 60 * 1000; // 5 دقائق بالميلي ثانية
+
+    // فحص صلاحية الجلسة المحفوظة لمدة 5 دقائق
+    function isAdminSessionActive() {
+      const session = localStorage.getItem('sahl_admin_session_expiry');
+      if (!session) return false;
+      const expiry = parseInt(session, 10);
+      if (Date.now() < expiry) {
+        return true;
+      } else {
+        localStorage.removeItem('sahl_admin_session_expiry');
+        return false;
+      }
+    }
 
     // إحداثيات ومراكز بلدات سهل حوران
     const TOWNS = [
@@ -291,7 +306,6 @@
     ];
 
     window.onload = function() {
-      // استعادة وضع الرؤية المخزن
       const savedMode = localStorage.getItem('sahl_vision_mode');
       if (savedMode === 'low-vision') applyVisionMode('low-vision');
 
@@ -310,11 +324,33 @@
 
       locateUser(false);
       renderAdminReports();
+
+      // تشغيل العداد والمراقبة كل ثانية
+      setInterval(checkSessionExpiryLoop, 1000);
     };
 
-    // نظام تسجيل الدخول الخاص بالإدارة
+    // دورة مراقبة الـ 5 دقائق وتحديث العداد
+    function checkSessionExpiryLoop() {
+      const session = localStorage.getItem('sahl_admin_session_expiry');
+      const badge = document.getElementById('session-countdown-badge');
+      if (!session) return;
+
+      const remaining = parseInt(session, 10) - Date.now();
+      if (remaining <= 0) {
+        localStorage.removeItem('sahl_admin_session_expiry');
+        if (!document.getElementById('view-admin').classList.contains('hidden')) {
+          alert('انتهت مهلة الدخول المحددة (5 دقائق). تم تسجيل الخروج تلقائياً لأسباب أمنية.');
+          adminLogout();
+        }
+      } else {
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+        badge.innerText = `نشط ${mins}:${secs < 10 ? '0' : ''}${secs} د`;
+      }
+    }
+
     function handleAdminTabClick() {
-      if (isAdminLoggedIn) {
+      if (isAdminSessionActive()) {
         switchView('admin');
       } else {
         document.getElementById('login-modal').classList.remove('hidden');
@@ -331,7 +367,10 @@
       const p = document.getElementById('admin-pass').value.trim();
 
       if (u === ADMIN_CREDENTIALS.user && p === ADMIN_CREDENTIALS.pass) {
-        isAdminLoggedIn = true;
+        // تعيين صلاحية 5 دقائق وحفظها
+        const expiryTimestamp = Date.now() + SESSION_DURATION_MS;
+        localStorage.setItem('sahl_admin_session_expiry', expiryTimestamp.toString());
+
         closeLoginModal();
         switchView('admin');
         document.getElementById('admin-user').value = '';
@@ -342,11 +381,11 @@
     }
 
     function adminLogout() {
-      isAdminLoggedIn = false;
+      localStorage.removeItem('sahl_admin_session_expiry');
       switchView('citizen');
     }
 
-    // نظام خيارات الرؤية لضعاف البصر
+    // خيارات الرؤية
     function openVisionModal() {
       document.getElementById('vision-modal').classList.remove('hidden');
     }
@@ -371,7 +410,7 @@
       closeVisionModal();
     }
 
-    // الـ GPS وتحديد الموقع
+    // الـ GPS
     function locateUser(isManualClick) {
       const infoEl = document.getElementById('geo-info');
       const accEl = document.getElementById('geo-accuracy');
