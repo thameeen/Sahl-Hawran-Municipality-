@@ -24,8 +24,10 @@
     .civic-btn-primary { background: linear-gradient(135deg, #047857 0%, #064e3b 100%); color: #ffffff; font-weight: 800; }
     #map { height: 230px !important; width: 100% !important; border-radius: 1rem; border: 1px solid #cbd5e1; background: #e2e8f0; }
     #detail-map { height: 180px !important; width: 100% !important; border-radius: 0.75rem; border: 1px solid #cbd5e1; }
-    body.low-vision-mode { font-size: 135% !important; }
-    body.low-vision-mode button, body.low-vision-mode input, body.low-vision-mode textarea { font-size: 115% !important; border: 3px solid #0f172a !important; font-weight: 900 !important; }
+    
+    /* نمط الخط المكبّر الهادئ والمتوسط بدون إزعاج */
+    body.font-enlarged { font-size: 114% !important; }
+    body.font-enlarged button, body.font-enlarged input, body.font-enlarged textarea { font-size: 106% !important; }
   </style>
 </head>
 <body id="app-body" class="pb-24 antialiased">
@@ -46,7 +48,7 @@
       </div>
       
       <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
-        <button type="button" onclick="openVisionModal()" class="w-8 h-8 flex items-center justify-center text-sm font-bold bg-white text-slate-700 rounded-lg shadow-xs hover:bg-slate-50 active:scale-95">👁️</button>
+        <button type="button" onclick="openVisionModal()" title="خيارات حجم الخط" class="w-8 h-8 flex items-center justify-center text-sm font-bold bg-white text-slate-700 rounded-lg shadow-xs hover:bg-slate-50 active:scale-95">👁️</button>
         <button type="button" onclick="switchView('citizen')" id="btn-citizen" class="px-3 py-1 text-xs font-black rounded-lg civic-btn-primary shadow-xs active:scale-95">المواطن</button>
         <button type="button" onclick="handleAdminTabClick()" id="btn-admin" class="px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 active:scale-95 flex items-center gap-1">
           <span>الإدارة</span><span class="text-[10px]">🔒</span>
@@ -121,7 +123,7 @@
 
             <div class="mb-2 flex items-center gap-1.5 text-[10px] text-slate-600 font-bold bg-slate-50 p-1.5 rounded-lg border border-slate-200">
               <span id="ai-engine-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span id="ai-engine-text">نظام التدقيق الذكي: نشط ويرفض صور القهوة والمنزل تلقائياً ✓</span>
+              <span id="ai-engine-text">نظام التدقيق البصري الذكي: نشط لضمان جودة البلاغ الميداني ✓</span>
             </div>
 
             <input type="file" accept="image/*" capture="environment" id="report-img" onchange="handleImageCaptureSmart(this)" class="hidden" />
@@ -129,18 +131,18 @@
             <button type="button" onclick="document.getElementById('report-img').click()" class="w-full py-4 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center gap-1.5 active:scale-98">
               <span class="text-2xl">📸</span>
               <span class="text-xs font-black text-slate-900">فتح الكاميرا وتصوير المشكلة</span>
-              <span class="text-[10px] text-slate-500 font-bold">يمنع تصوير المأكولات أو القهوة أو الأثاث المنزلي</span>
+              <span class="text-[10px] text-slate-500 font-bold">يُشترط توثيق عطل الخدمة في موقعه الميداني مباشرة</span>
             </button>
 
             <div id="ai-scanning-box" style="display: none;" class="mt-2 p-3 bg-indigo-50 border border-indigo-200 rounded-xl text-center">
               <span class="inline-block animate-spin text-lg mb-1 text-indigo-600">⚙️</span>
-              <p class="text-xs font-black text-indigo-950">جاري مسح وتحليل محتوى الصورة بواسطة الذكاء الاصطناعي...</p>
-              <p class="text-[10px] text-indigo-700 font-bold">فحص التأكد من خلو الصورة من العناصر المنزلية والقهوة</p>
+              <p class="text-xs font-black text-indigo-950">جاري التدقيق البصري الذكي للصورة الميدانية...</p>
+              <p class="text-[10px] text-indigo-700 font-bold">التحقق من صحة الصورة ومطابقتها لموقع الخلل</p>
             </div>
 
             <div id="ai-reject-alert" style="display: none;" class="mt-2 p-3.5 bg-rose-50 border-2 border-rose-300 rounded-2xl space-y-1">
               <div class="flex items-center gap-2 text-rose-800 font-black text-xs">
-                <span>⛔ تم رفض الصورة بواسطة الذكاء الاصطناعي</span>
+                <span>⛔ تنبيه من نظام التدقيق البصري</span>
               </div>
               <p id="ai-reject-reason" class="text-xs text-rose-700 leading-relaxed font-bold"></p>
             </div>
@@ -166,7 +168,7 @@
         <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-[11px]">
           <span class="font-black text-slate-900 block text-xs mb-1">شروط الاعتماد الميداني:</span>
           <div class="flex items-center gap-2" id="req-loc"><span class="text-rose-600 font-bold">✕</span><span class="text-slate-600">تثبيت الموقع الجغرافي داخل سهل حوران</span></div>
-          <div class="flex items-center gap-2" id="req-photo"><span class="text-rose-600 font-bold">✕</span><span class="text-slate-600">صورة عطل ميداني حقيقية خالية من الممنوعات</span></div>
+          <div class="flex items-center gap-2" id="req-photo"><span class="text-rose-600 font-bold">✕</span><span class="text-slate-600">صورة ميدانية معتمدة وموثقة آلياً</span></div>
           <div class="flex items-center gap-2" id="req-desc"><span class="text-rose-600 font-bold">✕</span><span class="text-slate-600">كتابة وصف دقيق وواضح للمشكلة</span></div>
         </div>
 
@@ -298,21 +300,21 @@
     </div>
   </div>
 
-  <!-- نافذة خيارات النظر -->
+  <!-- نافذة خيارات حجم الخط (محايدة وأنيقة) -->
   <div id="vision-modal" style="display: none;" class="fixed inset-0 z-50 bg-slate-950/70 items-center justify-center p-4">
     <div class="bg-white rounded-2xl p-5 max-w-xs w-full space-y-3.5">
       <div class="text-center">
-        <h3 class="font-extrabold text-slate-950 text-sm">خيارات الرؤية ووضوح الخط</h3>
-        <p class="text-[11px] text-slate-500">اختر النمط الأنسب لراحتك</p>
+        <h3 class="font-extrabold text-slate-950 text-sm">خيارات وضوح القراءة</h3>
+        <p class="text-[11px] text-slate-500">اختر حجم العرض المناسب لشاشتك</p>
       </div>
       <div class="space-y-2">
-        <button type="button" onclick="applyVisionMode('normal')" class="w-full p-3 text-right border rounded-xl bg-slate-50 border-slate-200">
-          <span class="text-xs font-bold text-slate-950 block">🌟 1. وضع الأشخاص العادي (طبيعي)</span>
-          <span class="text-[10px] text-slate-500 mt-0.5 block">حجم خط متوازن ومعياري</span>
+        <button type="button" onclick="applyVisionMode('normal')" class="w-full p-3 text-right border rounded-xl bg-slate-50 border-slate-200 hover:border-emerald-600 transition">
+          <span class="text-xs font-bold text-slate-950 block">🌟 1. الخط القياسي</span>
+          <span class="text-[10px] text-slate-500 mt-0.5 block">الحجم المتوازن الطبيعي</span>
         </button>
-        <button type="button" onclick="applyVisionMode('low-vision')" class="w-full p-3.5 text-right border-2 rounded-xl bg-white border-slate-900">
-          <span class="text-xs font-black text-slate-950 block">🔍 2. وضع ضعاف النظر (حجم كبير جداً)</span>
-          <span class="text-[10px] text-slate-600 font-bold mt-1 block">خطوط ضخمة وأزرار عريضة لتسهيل القراءة</span>
+        <button type="button" onclick="applyVisionMode('enlarged')" class="w-full p-3.5 text-right border-2 rounded-xl bg-white border-slate-900 hover:border-emerald-700 transition">
+          <span class="text-xs font-black text-slate-950 block">🔍 2. الخط المكبّر</span>
+          <span class="text-[10px] text-slate-600 font-bold mt-1 block">تكبير متوازن ومريح للقراءة دون تشويه الصفحة</span>
         </button>
       </div>
       <button type="button" onclick="closeVisionModal()" class="w-full py-2 bg-slate-950 text-white rounded-xl text-xs font-bold">إغلاق</button>
@@ -362,7 +364,6 @@
 
     const SAHL_BBOX = { minLat: 32.5700, maxLat: 32.7250, minLng: 35.8500, maxLng: 36.0500 };
 
-    // قائمة العناصر الممنوعة للذكاء الاصطناعي (أشياء منزلية، قهوة، أثاث)
     const FORBIDDEN_OBJECTS = [
       'cup', 'coffee mug', 'mug', 'espresso', 'coffeepot', 'teapot', 'cup of coffee',
       'plate', 'dish', 'bowl', 'spoon', 'fork', 'food', 'pizza', 'sandwich',
@@ -385,8 +386,8 @@
     let reports = [];
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const savedMode = localStorage.getItem('sahl_vision_mode');
-      if (savedMode === 'low-vision') applyVisionMode('low-vision');
+      const savedMode = localStorage.getItem('sahl_font_mode');
+      if (savedMode === 'enlarged') applyVisionMode('enlarged');
 
       initMapSafely();
       await fetchReportsFromCloud();
@@ -401,10 +402,10 @@
         if (window.mobilenet) {
           aiModel = await mobilenet.load();
           document.getElementById('ai-engine-dot').className = 'w-2 h-2 rounded-full bg-emerald-500';
-          document.getElementById('ai-engine-text').innerText = 'نظام التدقيق الذكي: نشط وجاهز للتحقق الميداني ✓';
+          document.getElementById('ai-engine-text').innerText = 'نظام التدقيق البصري الذكي: نشط لضمان جودة البلاغ الميداني ✓';
         }
       } catch (err) {
-        document.getElementById('ai-engine-text').innerText = 'نظام التدقيق يعمل بالنمط المباشر المعتمد';
+        document.getElementById('ai-engine-text').innerText = 'نظام التدقيق الميداني يعمل بالنمط المباشر المعتمد';
       }
     }
 
@@ -440,7 +441,6 @@
       }).subscribe();
     }
 
-    // منطق فحص الكاميرا الذكي والصارم
     async function handleImageCaptureSmart(input) {
       const file = input.files && input.files[0];
       if (!file) return;
@@ -463,7 +463,6 @@
         await tempImg.decode();
 
         let isForbidden = false;
-        let forbiddenLabel = '';
 
         if (aiModel) {
           try {
@@ -473,7 +472,6 @@
               for (let forb of FORBIDDEN_OBJECTS) {
                 if (label.includes(forb) && pred.probability > 0.15) {
                   isForbidden = true;
-                  forbiddenLabel = pred.className;
                   break;
                 }
               }
@@ -488,15 +486,15 @@
           capturedPhotoData = null;
           document.getElementById('report-img').value = '';
           rejectAlert.style.display = 'block';
-          rejectReason.innerText = `⛔ تم رصد عنصر منزلي/غير خدمي (${forbiddenLabel}). يمنع تصوير المأكولات أو المشروبات أو الأثاث؛ يرجى تصوير العطل الميداني في الشارع مباشرة.`;
-          badge.innerText = '⛔ الصورة مرفوضة (AI)';
+          rejectReason.innerText = `يرجى توجيه الكاميرا وتصوير موقع الخلل الخدمي في الشارع مباشرة، لضمان قبول البلاغ واعتماده فورياً.`;
+          badge.innerText = 'تنبيه: أعد التصوير الميداني';
           badge.className = 'text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded';
         } else {
           capturedPhotoData = dataUrl;
           document.getElementById('photo-preview-img').src = capturedPhotoData;
           previewContainer.style.display = 'block';
           rejectAlert.style.display = 'none';
-          badge.innerText = `✓ صورة عطل معتمدة وموثقة`;
+          badge.innerText = `✓ توثيق ميداني معتمد`;
           badge.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded';
         }
         checkFormValidity();
@@ -528,14 +526,14 @@
       } else {
         descBadge.innerText = 'مطلوب الوصف';
         descBadge.className = 'text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded';
-        document.getElementById('req-desc').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">كتابة وصف العطل (5 أحرف على الأقل)</span>`;
+        document.getElementById('req-desc').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">كتابة وصف دقيق وواضح للمشكلة</span>`;
       }
 
       const hasPhoto = !!capturedPhotoData;
       if (hasPhoto) {
-        document.getElementById('req-photo').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">تم اعتماد الصورة الميدانية بنجاح</span>`;
+        document.getElementById('req-photo').innerHTML = `<span class="text-emerald-600 font-bold">✓</span> <span class="text-slate-800 font-bold">صورة ميدانية معتمدة وموثقة آلياً</span>`;
       } else {
-        document.getElementById('req-photo').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">صورة عطل ميداني حقيقية خالية من الممنوعات</span>`;
+        document.getElementById('req-photo').innerHTML = `<span class="text-rose-600 font-bold">✕</span> <span class="text-slate-600">صورة ميدانية معتمدة وموثقة آلياً</span>`;
       }
 
       const hasLocation = isLocationVerified;
@@ -554,7 +552,7 @@
         submitBtn.className = 'w-full py-3.5 bg-slate-300 opacity-50 cursor-not-allowed text-slate-500 font-black text-xs rounded-xl shadow transition';
         let missing = [];
         if (!hasLocation) missing.push('الموقع بالـ GPS');
-        if (!hasPhoto) missing.push('صورة العطل');
+        if (!hasPhoto) missing.push('الصورة الميدانية');
         if (!isDescValid) missing.push('وصف المشكلة');
         submitBtn.innerText = `متبقي لاعتماد البلاغ: (${missing.join(' + ')})`;
       }
@@ -907,14 +905,15 @@
 
     function openVisionModal() { document.getElementById('vision-modal').style.display = 'flex'; }
     function closeVisionModal() { document.getElementById('vision-modal').style.display = 'none'; }
+    
     function applyVisionMode(mode) {
       const body = document.getElementById('app-body');
-      if (mode === 'low-vision') {
-        body.classList.add('low-vision-mode');
-        localStorage.setItem('sahl_vision_mode', 'low-vision');
+      if (mode === 'enlarged') {
+        body.classList.add('font-enlarged');
+        localStorage.setItem('sahl_font_mode', 'enlarged');
       } else {
-        body.classList.remove('low-vision-mode');
-        localStorage.setItem('sahl_vision_mode', 'normal');
+        body.classList.remove('font-enlarged');
+        localStorage.setItem('sahl_font_mode', 'normal');
       }
       closeVisionModal();
       if (map) setTimeout(() => map.invalidateSize(), 200);
@@ -929,10 +928,4 @@
           <div class="w-14 h-14 bg-emerald-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black mb-3 shadow-lg">✓</div>
           <h2 class="text-base font-black mb-1">شكراً لزيارتك بوابة سهل حوران</h2>
           <p class="text-xs text-slate-400 mb-5">تم إنهاء الجلسة بنجاح، يمكنك إغلاق التطبيق الآن.</p>
-          <button onclick="location.reload()" class="px-5 py-2 civic-btn-primary rounded-xl text-xs font-black">العودة للتطبيق</button>
-        </div>
-      `;
-    }
-  </script>
-</body>
-</html>
+          <button onclick="location.rel
